@@ -276,6 +276,26 @@ function updateStats() {
 }
 
 
+
+function isMobileView() {
+  return window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+}
+
+// Переносим счетчики (копирования/избранное) в карусель на мобильных, чтобы освободить место
+function syncPromptModalStatsPlacement() {
+  const stats = document.getElementById('promptModalStats');
+  const dock = document.getElementById('promptModalStatsDock');
+  const carousel = document.getElementById('promptCarousel');
+
+  if (!stats || !dock || !carousel) return;
+
+  if (isMobileView()) {
+    if (stats.parentElement !== carousel) carousel.appendChild(stats);
+  } else {
+    if (stats.parentElement !== dock) dock.appendChild(stats);
+  }
+}
+
 // Modal функции
 const modal = {
   currentIndex: 0,
@@ -317,6 +337,10 @@ const modal = {
       state.favorites.includes(prompt.id) ? '❤ В избранном' : '❤ В избранное';
     document.getElementById('promptCarouselCounter').textContent = `${this.currentIndex + 1} / ${list.length}`;
     
+
+    // На мобильных переносим счетчики поверх изображения
+    syncPromptModalStatsPlacement();
+
     this.open(dom.promptModalOverlay);
   },
 
@@ -356,6 +380,10 @@ const modal = {
   },
 
   openConstructor() {
+    // Открываем всегда «с чистого листа»: пусто + всё свернуто
+    if (window.__promptBuilder && typeof window.__promptBuilder.resetOnOpen === 'function') {
+      window.__promptBuilder.resetOnOpen();
+    }
     this.open(dom.constructorModalOverlay);
   }
 };
@@ -519,11 +547,11 @@ function initPromptBuilder() {
   };
 
   const builderState = {
-    pose: 'Стоит',
-    clothes: new Set(['Классический костюм']),
+    pose: '',
+    clothes: new Set(),
     location: new Set(),
-    time: 'Золотой час',
-    lighting: new Set(['Естественный свет'])
+    time: '',
+    lighting: new Set()
   };
 
   const elements = {
@@ -614,6 +642,13 @@ function initPromptBuilder() {
     if (builderState.time) parts.push(`Время суток: ${builderState.time}`);
     if (builderState.lighting.size) parts.push(`Освещение: ${Array.from(builderState.lighting).join(', ')}`);
     
+    // Если ничего не выбрано — держим поле пустым
+    if (parts.length === 0) {
+      elements.charCount.textContent = '0';
+      elements.prompt.value = '';
+      return '';
+    }
+
     const result = `${base}\n\n${parts.map(p => `• ${p}`).join('\n')}\n\nКачество: high detail, sharp, natural skin texture.`;
     
     elements.charCount.textContent = result.length.toLocaleString();
@@ -646,6 +681,32 @@ function initPromptBuilder() {
     buildPrompt();
     updateProgress();
     showNotification('Настройки конструктора сброшены');
+  }
+
+  // Тихий сброс — используется при открытии конструктора (без уведомлений)
+  function resetBuilderSilent(collapseAll = true) {
+    builderState.pose = '';
+    builderState.time = '';
+    builderState.clothes.clear();
+    builderState.location.clear();
+    builderState.lighting.clear();
+
+    // снять активные элементы
+    document.querySelectorAll('#pbSections .pb-pill.is-active')
+      .forEach((pill) => pill.classList.remove('is-active'));
+
+    // обновить текст/прогресс
+    buildPrompt();
+    updateProgress();
+
+    // скрыть возможное уведомление
+    elements.notification.classList.remove('show');
+
+    // свернуть все секции
+    if (collapseAll) {
+      document.querySelectorAll('#pbSections [data-section]')
+        .forEach((section) => section.classList.add('is-collapsed'));
+    }
   }
 
   // Обработчики событий
@@ -713,8 +774,12 @@ function initPromptBuilder() {
   });
 
   // Инициализация
-  buildPrompt();
-  updateProgress();
+  resetBuilderSilent(true);
+
+  // Публичный API — нужен, чтобы при каждом открытии конструктора он был пустым и свернутым
+  window.__promptBuilder = {
+    resetOnOpen: () => resetBuilderSilent(true)
+  };
 }
 
 // Инициализация приложения
@@ -888,4 +953,9 @@ function setupEventListeners() {
 document.addEventListener('DOMContentLoaded', () => {
   initApp();
   setupEventListeners();
+  window.addEventListener('resize', () => {
+    if (dom.promptModalOverlay.classList.contains('show')) {
+      syncPromptModalStatsPlacement();
+    }
+  });
 });

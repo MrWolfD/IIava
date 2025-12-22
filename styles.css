@@ -350,10 +350,6 @@ body {
   transform: translateY(0);
 }
 
-
-.prompt-card:hover .prompt-image {
-  transform: scale(1.04);
-}
 .prompt-image {
   width: 100%;
   aspect-ratio: 3/4;
@@ -363,8 +359,6 @@ body {
   background: var(--bg-secondary);
   content-visibility: auto;
   contain-intrinsic-size: 300px 400px;
-  transition: transform .25s ease;
-  will-change: transform;
 }
 
 .prompt-badge {
@@ -1397,6 +1391,49 @@ body {
   box-shadow: var(--shadow-lg);
 }
 
+
+/* Touch devices: disable hover-only effects for a cleaner mobile feel */
+@media (hover: none) {
+  .prompt-card:hover {
+    transform: none;
+    box-shadow: none;
+    border-color: var(--border);
+  }
+
+  .prompt-card::after,
+  .prompt-card:hover::after {
+    display: none;
+  }
+
+  .prompt-card:hover .prompt-image {
+    transform: none;
+  }
+
+  .user-btn:hover,
+  .primary-btn:hover,
+  .pb-btn-primary:hover,
+  .pb-btn-secondary:hover {
+    transform: none;
+    box-shadow: none;
+    filter: none;
+  }
+
+  .filter-tab:hover,
+  .icon-btn:hover,
+  .action-btn:hover,
+  .modal-close:hover,
+  .pb-pill:hover,
+  .pb-tool:hover,
+  .referral-stat:hover {
+    background: inherit;
+    color: inherit;
+    border-color: inherit;
+    box-shadow: none;
+    transform: none;
+  }
+}
+
+
 /* Media Queries */
 @media (max-width:1024px) {
   .cards-grid {
@@ -1405,54 +1442,200 @@ body {
 }
 
 @media (max-width:768px) {
+  body {
+    padding-bottom: 84px;
+  }
+
+  .header {
+    padding: 14px 16px;
+  }
+
   .header-content {
     flex-direction: column;
-    gap: 20px;
+    gap: 14px;
+    align-items: stretch;
   }
+
+  .logo {
+    font-size: 22px;
+  }
+
+  .logo-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+  }
+
   .search-container {
     order: 3;
     width: 100%;
     max-width: 100%;
   }
+
+  .search-input {
+    padding: 12px 16px 12px 46px;
+    border-radius: 16px;
+    font-size: 15px;
+  }
+
+  .search-icon {
+    left: 16px;
+  }
+
   .user-menu {
     width: 100%;
     justify-content: space-between;
+    gap: 10px;
   }
+
+  .user-btn {
+    height: 42px;
+    padding: 11px 16px;
+    font-size: 13px;
+    border-radius: 12px;
+  }
+
+  .icon-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+  }
+
   .hero-banner {
-    padding: 32px 24px;
+    margin: 16px auto 0;
+    padding: 24px 18px;
+    border-radius: 20px;
   }
+
   .hero-title {
     font-size: 24px;
   }
+
+  .hero-subtitle {
+    font-size: 15px;
+    margin-bottom: 18px;
+  }
+
+  .container {
+    padding: 20px 16px;
+  }
+
+  .filter-tabs {
+    margin-bottom: 18px;
+    gap: 10px;
+    padding-bottom: 6px;
+  }
+
+  .filter-tab {
+    padding: 10px 16px;
+    border-radius: 16px;
+  }
+
+  .stats-bar {
+    padding: 14px;
+    border-radius: 16px;
+    gap: 12px;
+  }
+
+  .cards-grid {
+    gap: 16px;
+    margin-bottom: 36px;
+  }
+
+  .prompt-content {
+    padding: 14px 14px 12px;
+  }
+
+  .prompt-title {
+    font-size: 16px;
+    margin-bottom: 8px;
+  }
+
+  .prompt-description {
+    margin-bottom: 10px;
+  }
+
   .referral-section {
-    padding: 32px 24px;
+    padding: 24px 18px;
+    border-radius: 20px;
   }
+
   .referral-title {
-    font-size: 24px;
+    font-size: 22px;
   }
+
   .link-wrapper {
     flex-direction: column;
   }
+
+  .primary-btn {
+    min-width: 0;
+    width: 100%;
+  }
+
+  /* Modal layout: stack columns */
+  .modal-overlay {
+    padding: 12px;
+  }
+
+  .modal {
+    width: min(560px, 94vw);
+    border-radius: 20px;
+  }
+
+  .modal-body {
+    padding: 12px;
+  }
+
   .modal-grid {
     grid-template-columns: 1fr;
     grid-template-areas: "left" "actions" "right";
-    gap: 14px;
+    gap: 12px;
   }
-  .modal {
-    width: min(560px, 96vw);
+
+  .detail-side-under {
+    padding: 12px;
+    border-radius: 16px;
   }
-  .modal-body {
-    padding: 14px;
+
+  .kv {
+    gap: 8px;
   }
+
+  /* Actions: single column for better tap targets */
   .detail-actions {
-    flex-direction: column;
-    width: 100%;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 10px;
+    padding-top: 10px;
   }
+
   .detail-actions .primary-btn,
   .detail-actions .secondary-btn {
-    width: 100%;
-    justify-content: center;
+    height: 44px;
+    border-radius: 12px;
   }
+
+  .carousel-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+  }
+
+  .carousel-counter {
+    bottom: 12px;
+    font-size: 12px;
+  }
+
+  .prompt-textarea {
+    height: 280px;
+    max-height: 45vh;
+    border-radius: 16px;
+    padding: 14px;
+    font-size: 13px;
+  }
+
+  /* Prompt Builder */
   .pb-actions {
     flex-direction: column;
   }
@@ -1462,34 +1645,57 @@ body {
     aspect-ratio: 4/5;
     contain-intrinsic-size: 320px 400px;
   }
-
 }
+
 
 @media (max-width:480px) {
   .cards-grid {
     grid-template-columns: 1fr;
   }
+
   .prompt-meta {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
+    align-items: stretch;
+    gap: 12px;
   }
+
+  .prompt-stats {
+    gap: 14px;
+  }
+
   .prompt-actions {
     width: 100%;
     justify-content: flex-end;
   }
+
   .stats-bar {
     flex-direction: column;
-    gap: 16px;
-    align-items: flex-start;
+    align-items: stretch;
+    gap: 12px;
   }
+
+  .sort-select {
+    width: 100%;
+    height: 44px;
+    border-radius: 12px;
+  }
+
   .kv .k {
     font-size: 12px;
   }
+
   .kv .v {
     font-size: 16px;
   }
+
+  .toast {
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    max-width: none;
+  }
 }
+
 
 @media (max-width:360px) {
   .prompt-card {
@@ -1508,5 +1714,171 @@ body {
     animation-duration: .01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
+  }
+}
+
+
+/* ===============================
+   Prompt Builder — action buttons
+   Mobile & Desktop safe fix
+   =============================== */
+
+.pb-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+/* Общая база для кнопок */
+.pb-actions button {
+  width: 100%;
+  height: 48px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Primary — Скопировать промпт */
+.pb-actions .primary-btn {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  color: #fff;
+  border: none;
+  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.35);
+}
+
+.pb-actions .primary-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 4px 10px rgba(124, 58, 237, 0.35);
+}
+
+/* Secondary — Сбросить всё */
+.pb-actions .secondary-btn {
+  background: #ffffff;
+  color: #7c3aed;
+  border: 1.5px solid rgba(124, 58, 237, 0.35);
+}
+
+.pb-actions .secondary-btn:active {
+  transform: scale(0.98);
+}
+
+/* Иконки внутри кнопок */
+.pb-actions svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2;
+}
+
+/* Desktop — две кнопки в линию */
+@media (min-width: 768px) {
+  .pb-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+
+/* ===============================
+   Mobile: smart chips over image (prompt modal)
+   =============================== */
+@media (max-width: 768px) {
+  /* делаем карусель контейнером для оверлеев */
+  #promptCarousel {
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* легкая подложка сверху, чтобы чипы читались на светлых фото */
+  #promptCarousel::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 72px;
+    background: linear-gradient(to bottom, rgba(0,0,0,.38), rgba(0,0,0,0));
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* переносим KV в компактные чипы и кладём поверх изображения */
+  #promptModalStats {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 2;
+    display: flex;
+    gap: 8px;
+    width: auto;
+    grid-template-columns: none; /* отменяем grid */
+    margin: 0;
+    pointer-events: none; /* не мешаем свайпу/кнопкам */
+  }
+
+  #promptModalStats .kv-card {
+    height: auto;
+    padding: 7px 10px;
+    border-radius: 999px;
+    background: rgba(17,24,39,.55);
+    border: 1px solid rgba(255,255,255,.18);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 10px 24px rgba(0,0,0,.18);
+    pointer-events: none;
+  }
+
+  /* подписи прячем — оставляем только цифры */
+  #promptModalStats .kv-card .k {
+    display: none;
+  }
+
+  #promptModalStats .kv-card .v {
+    font-size: 13px;
+    font-weight: 900;
+    color: #fff;
+    line-height: 1;
+    letter-spacing: -0.2px;
+  }
+
+  /* чуть компактнее навигация, чтобы не спорила с чипами */
+  .carousel-nav {
+    z-index: 3;
+  }
+}
+
+/* ===============================
+   Mobile: add icons to modal stats chips
+   =============================== */
+@media (max-width: 768px) {
+  #promptModalStats .kv-card .v {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  #promptModalStats .kv-card:nth-child(1) .v::before {
+    content: '';
+    display: block;
+    width: 14px;
+    height: 14px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Crect x='9' y='9' width='13' height='13' rx='2' ry='2'%3E%3C/rect%3E%3Cpath d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: contain;
+    flex-shrink: 0;
+  }
+
+  #promptModalStats .kv-card:nth-child(2) .v::before {
+    content: '';
+    display: block;
+    width: 14px;
+    height: 14px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Cpath d='M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-size: contain;
+    flex-shrink: 0;
   }
 }
