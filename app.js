@@ -1,0 +1,891 @@
+'use strict';
+
+// Конфигурация
+const CONFIG = {
+  DEBOUNCE_DELAY: 300,
+  INIT_DELAY: 700,
+  STORAGE_KEY: 'neurophoto_favorites',
+  MIN_SWIPE_DISTANCE: 55
+};
+
+// Состояние приложения
+const state = {
+  prompts: [],
+  filteredPrompts: [],
+  favorites: JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY)) || [],
+  activeCategories: new Set(['все']),
+  searchQuery: '',
+  sortBy: 'default',
+  isLoading: true,
+  showOnlyFavorites: false,
+  modalIndex: 0
+};
+
+// Демо-данные
+const demoData = {
+  profile: {
+    userId: 224753455,
+    registeredAt: "2025-11-03",
+    tokenBalance: 1460,
+    bonusBalance: 120,
+    earnedBonuses: 340,
+    referrals: 12,
+    generations: { total: 98, success: 79, unfinished: 11, canceled: 8 },
+    referralLink: "https://t.me/neurophoto_bot?start=ref_224753455"
+  },
+  
+  prompts: [
+    { id: 1, title: "Профессиональный портрет в студии", description: "Светлая студия, профессиональное освещение, детализированная проработка кожи", promptText: "Сгенерируй фото: Профессиональный портрет в студии. Студийное освещение, мягкий key light, аккуратные тени, реалистичная кожа, высокая детализация, 8K.", image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2", category: "портрет", copies: 324, favorites: 45, tags: ["студия", "портрет", "профессиональный"], isPremium: true },
+    { id: 2, title: "Модная фотосессия в городе", description: "Уличная съемка, современная одежда, городской бэкграунд", promptText: "Сгенерируй фото: Модная фотосессия в городе. Стрит-фото, кинематографичный свет, городской фон, высокий контраст, реалистичная текстура одежды, 8K.", image: "https://images.unsplash.com/photo-1488161628813-04466f872be2", category: "фотосессия", copies: 289, favorites: 38, tags: ["улица", "мода", "город"], isPremium: false },
+    { id: 3, title: "Креативный портрет с цветами", description: "Арт-съемка, цветочные элементы, необычные ракурсы", promptText: "Сгенерируй фото: Креативный портрет с цветами. Арт-портрет, цветочные акценты, мягкий свет, пастельные тона, высокая детализация, 8K.", image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1", category: "портрет", copies: 256, favorites: 52, tags: ["арт", "цветы", "креатив"], isPremium: false },
+    { id: 4, title: "Профессиональное фото для резюме", description: "Деловой стиль, нейтральный фон, уверенный образ", promptText: "Сгенерируй фото: Профессиональное фото для резюме. Деловой стиль, нейтральный фон, мягкий свет, естественные цвета, clean look, 8K.", image: "https://images.unsplash.com/photo-1580489944761-15a19d654956", category: "бизнес", copies: 412, favorites: 67, tags: ["резюме", "деловой", "портрет"], isPremium: true },
+    { id: 5, title: "Семейная фотосессия на природе", description: "Теплая атмосфера, естественные эмоции, природный фон", promptText: "Сгенерируй фото: Семейная фотосессия на природе. Естественное освещение, теплые тона, счастливые лица, гармоничная композиция, 8K.", image: "https://images.unsplash.com/photo-1511988617509-a57c8a288659", category: "семья", copies: 189, favorites: 42, tags: ["семья", "природа", "эмоции"], isPremium: false },
+    { id: 6, title: "Спортивная съемка в зале", description: "Динамика, энергия, современный спортзал", promptText: "Сгенерируй фото: Спортивная съемка в зале. Динамичное освещение, активная поза, детализация мышц, современный зал, 8K.", image: "https://images.unsplash.com/photo-1511988617509-a57c8a288659", category: "спорт", copies: 156, favorites: 31, tags: ["спорт", "динамика", "энергия"], isPremium: false },
+    { id: 7, title: "Романтическая фотосессия в парке", description: "Нежные чувства, красивые локации, мягкий свет", promptText: "Сгенерируй фото: Романтическая фотосессия в парке. Мягкий свет, нежные цвета, красивые фоны, искренние эмоции, 8K.", image: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc", category: "романтика", copies: 234, favorites: 58, tags: ["романтика", "парк", "нежность"], isPremium: true },
+    { id: 8, title: "Корпоративный портрет в офисе", description: "Профессиональная атмосфера, современный офис, деловой стиль", promptText: "Сгенерируй фото: Корпоративный портрет в офисе. Естественный свет от окон, современный офисный интерьер, деловая одежда, уверенная поза, 8K.", image: "https://images.unsplash.com/photo-1560250097-0b93528c311a", category: "бизнес", copies: 198, favorites: 36, tags: ["офис", "корпоративный", "деловой"], isPremium: false },
+    { id: 9, title: "Фотосессия с животными", description: "Игривость, натуральность, домашние питомцы", promptText: "Сгенерируй фото: Фотосессия с животными. Естественное освещение, игривая атмосфера, внимание к деталям шерсти, гармоничное взаимодействие, 8K.", image: "https://images.unsplash.com/photo-1543852786-1cf6624b9987", category: "животные", copies: 167, favorites: 49, tags: ["животные", "игривость", "натуральность"], isPremium: false },
+    { id: 10, title: "Архитектурный портрет на фоне зданий", description: "Урбанистический стиль, геометрия, контрасты", promptText: "Сгенерируй фото: Архитектурный портрет на фоне зданий. Резкие тени, геометричные фоны, контрастное освещение, стильная одежда, 8K.", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d", category: "архитектура", copies: 145, favorites: 27, tags: ["архитектура", "урбан", "геометрия"], isPremium: true },
+    { id: 11, title: "Детская фотосессия в студии", description: "Нежность, естественность, мягкие тона", promptText: "Сгенерируй фото: Детская фотосессия в студии. Мягкий студийный свет, пастельные тона, нежные выражения, акцент на глазах, 8K.", image: "https://images.unsplash.com/photo-1511988617509-a57c8a288659", category: "дети", copies: 278, favorites: 63, tags: ["дети", "студия", "нежность"], isPremium: false },
+    { id: 12, title: "Вечерняя фотосессия с огнями", description: "Волшебная атмосфера, огни, глубина кадра", promptText: "Сгенерируй фото: Вечерняя фотосессия с огнями. Сумеречное освещение, огни гирлянд, глубина резкости, романтическое настроение, 8K.", image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622", category: "вечер", copies: 201, favorites: 44, tags: ["вечер", "огни", "атмосфера"], isPremium: true }
+  ]
+};
+
+// Кэш DOM элементов
+const dom = {
+  cardsGrid: document.getElementById('cardsGrid'),
+  filterTabs: document.getElementById('filterTabs'),
+  visibleCount: document.getElementById('visibleCount'),
+  totalCount: document.getElementById('totalCount'),
+  sortSelect: document.getElementById('sortSelect'),
+  loadingState: document.getElementById('loadingState'),
+  toast: document.getElementById('toast'),
+  searchInput: document.getElementById('searchInput'),
+  favoritesBtn: document.getElementById('favoritesBtn'),
+  generateBtn: document.getElementById('generateBtn'),
+  tryFreeBtn: document.getElementById('tryFreeBtn'),
+  invitedCount: document.getElementById('invitedCount'),
+  earnedBonuses: document.getElementById('earnedBonuses'),
+  bonusBalance: document.getElementById('bonusBalance'),
+  referralLink: document.getElementById('referralLink'),
+  copyReferralBtn: document.getElementById('copyReferralBtn'),
+  profileBtn: document.getElementById('profileBtn'),
+  promptModalOverlay: document.getElementById('promptModalOverlay'),
+  profileModalOverlay: document.getElementById('profileModalOverlay'),
+  constructorModalOverlay: document.getElementById('constructorModalOverlay')
+};
+
+// Утилиты
+const utils = {
+  debounce(func, wait) {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func(...args), wait);
+    };
+  },
+
+  async copyToClipboard(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch {
+      return false;
+    }
+  },
+
+  formatDate(dateStr) {
+    const date = new Date(dateStr);
+    return isNaN(date.getTime()) ? dateStr : 
+      date.toLocaleDateString('ru-RU', { year: 'numeric', month: 'long', day: 'numeric' });
+  },
+
+  showToast(message, type = 'success') {
+    const icon = type === 'success' 
+      ? '<path d="M20 6L9 17l-5-5"></path>'
+      : '<circle cx="12" cy="12" r="10"></circle><path d="m15 9-6 6M9 9l6 6"></path>';
+    
+    dom.toast.innerHTML = `
+      <svg class="toast-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">${icon}</svg>
+      <span>${message}</span>
+    `;
+    
+    dom.toast.classList.add('show');
+    setTimeout(() => dom.toast.classList.remove('show'), 2600);
+  }
+};
+
+// Основные функции
+function renderCategories() {
+  const categories = ['все', ...new Set(state.prompts.map(p => p.category))];
+  
+  dom.filterTabs.innerHTML = categories.map(cat => {
+    const isActive = state.activeCategories.has(cat);
+    const isAll = cat === 'все';
+    const allActiveButOthers = isAll && state.activeCategories.size > 1;
+    
+    return `
+      <div class="filter-tab ${isActive ? 'active' : ''} ${allActiveButOthers ? 'all-active' : ''}" 
+           data-category="${cat}">
+        ${cat.charAt(0).toUpperCase() + cat.slice(1)}
+      </div>
+    `;
+  }).join('');
+}
+
+function renderPrompts() {
+  if (state.filteredPrompts.length === 0) {
+    const emptyState = state.showOnlyFavorites 
+      ? {
+          icon: '<path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>',
+          title: 'В избранном пока пусто',
+          text: 'Открывайте промпты и нажимайте на сердечко, чтобы быстро находить их и копировать в бот'
+        }
+      : {
+          icon: '<circle cx="12" cy="12" r="10"></circle><path d="M8 12h8"></path>',
+          title: 'Промпты не найдены',
+          text: 'Попробуйте изменить фильтры или поиск'
+        };
+    
+    dom.cardsGrid.innerHTML = `
+      <div class="empty-state" style="grid-column: 1 / -1;">
+        <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">${emptyState.icon}</svg>
+        <h3>${emptyState.title}</h3>
+        <p>${emptyState.text}</p>
+      </div>
+    `;
+    return;
+  }
+
+  dom.cardsGrid.innerHTML = state.filteredPrompts.map(prompt => `
+    <div class="prompt-card" data-id="${prompt.id}">
+      ${prompt.isPremium ? '<div class="prompt-badge">PREMIUM</div>' : ''}
+      <img src="${prompt.image}" 
+           alt="${prompt.title}" 
+           class="prompt-image" 
+           loading="lazy"
+           onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"300\" height=\"400\"><rect width=\"100%\" height=\"100%\" fill=\"%23f3f4f6\"/></svg>
+      <div class="prompt-content">
+        <h3 class="prompt-title">${prompt.title}</h3>
+        <p class="prompt-description">${prompt.description}</p>
+        <div class="prompt-meta">
+          <div class="prompt-stats">
+            <div class="stat-item" title="Копирований">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              ${prompt.copies}
+            </div>
+            <div class="stat-item" title="Добавлено в избранное">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+              ${prompt.favorites}
+            </div>
+          </div>
+          <div class="prompt-actions">
+            <button class="action-btn favorite-btn ${state.favorites.includes(prompt.id) ? 'active' : ''}"
+                    data-id="${prompt.id}"
+                    title="${state.favorites.includes(prompt.id) ? 'Удалить из избранного' : 'Добавить в избранное'}">
+              <svg width="18" height="18" viewBox="0 0 24 24"
+                   fill="${state.favorites.includes(prompt.id) ? 'currentColor' : 'none'}" 
+                   stroke="currentColor" stroke-width="2">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function updatePrompts() {
+  let filtered = [...state.prompts];
+
+  // Фильтр избранного
+  if (state.showOnlyFavorites) {
+    filtered = filtered.filter(p => state.favorites.includes(p.id));
+  }
+
+  // Фильтр категорий
+  const categories = new Set(state.activeCategories);
+  const onlyAll = categories.size === 1 && categories.has('все');
+  
+  if (!onlyAll) {
+    categories.delete('все');
+    if (categories.size > 0) {
+      filtered = filtered.filter(p => categories.has(p.category));
+    }
+  }
+
+  // Поиск
+  if (state.searchQuery) {
+    const query = state.searchQuery.toLowerCase();
+    filtered = filtered.filter(p =>
+      p.title.toLowerCase().includes(query) ||
+      p.description.toLowerCase().includes(query) ||
+      p.tags.some(tag => String(tag).toLowerCase().includes(query))
+    );
+  }
+
+  // Сортировка
+  filtered.sort((a, b) => {
+    switch (state.sortBy) {
+      case 'default': return (b.copies + b.favorites) - (a.copies + a.favorites);
+      case 'new': return b.id - a.id;
+      case 'copies': return b.copies - a.copies;
+      case 'favorites': return b.favorites - a.favorites;
+      default: return 0;
+    }
+  });
+
+  state.filteredPrompts = filtered;
+  renderPrompts();
+  updateStats();
+}
+
+function updateStats() {
+  dom.visibleCount.textContent = state.filteredPrompts.length;
+  dom.totalCount.textContent = state.prompts.length;
+
+  const favCount = state.favorites.length;
+
+  dom.favoritesBtn.innerHTML = `
+    <svg width="20" height="20" viewBox="0 0 24 24" 
+         fill="${(favCount > 0 || state.showOnlyFavorites) ? 'currentColor' : 'none'}" 
+         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+    </svg>
+    ${favCount > 0 ? `<span class="fav-counter">${favCount}</span>` : ''}
+  `;
+
+  dom.favoritesBtn.classList.toggle('active', state.showOnlyFavorites);
+
+  // ✅ Иконка профиля (чтобы кнопка не была пустой)
+  if (dom.profileBtn && !dom.profileBtn.innerHTML.trim()) {
+    dom.profileBtn.innerHTML = `
+      <svg width="20" height="20" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20 21a8 8 0 0 0-16 0"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+      </svg>
+    `;
+  }
+}
+
+
+// Modal функции
+const modal = {
+  currentIndex: 0,
+  
+  open(el) {
+    el.classList.add('show');
+    el.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  },
+
+  close(el) {
+    el.classList.remove('show');
+    el.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  },
+
+  openPrompt(promptId) {
+    const list = state.filteredPrompts.length ? state.filteredPrompts : state.prompts;
+    const idx = list.findIndex(p => p.id === promptId);
+    
+    if (idx < 0) return;
+    
+    this.currentIndex = idx;
+    const prompt = list[idx];
+    
+    document.getElementById('promptModalTitle').textContent = prompt.title;
+    document.getElementById('promptModalSubtitle').textContent = 
+      (prompt.category ? `Категория: ${prompt.category}` : '') + 
+      (prompt.isPremium ? ' • PREMIUM' : '');
+    
+    const img = document.getElementById('promptModalImage');
+    img.src = prompt.image;
+    img.alt = prompt.title;
+    
+    document.getElementById('promptModalText').value = prompt.promptText || '';
+    document.getElementById('promptModalCopies').textContent = prompt.copies || 0;
+    document.getElementById('promptModalFavorites').textContent = prompt.favorites || 0;
+    document.getElementById('promptModalFavBtn').textContent = 
+      state.favorites.includes(prompt.id) ? '❤ В избранном' : '❤ В избранное';
+    document.getElementById('promptCarouselCounter').textContent = `${this.currentIndex + 1} / ${list.length}`;
+    
+    this.open(dom.promptModalOverlay);
+  },
+
+  prev() {
+    const list = state.filteredPrompts.length ? state.filteredPrompts : state.prompts;
+    this.currentIndex = (this.currentIndex - 1 + list.length) % list.length;
+    const prompt = list[this.currentIndex];
+    if (prompt) this.openPrompt(prompt.id);
+  },
+
+  next() {
+    const list = state.filteredPrompts.length ? state.filteredPrompts : state.prompts;
+    this.currentIndex = (this.currentIndex + 1) % list.length;
+    const prompt = list[this.currentIndex];
+    if (prompt) this.openPrompt(prompt.id);
+  },
+
+  openProfile() {
+    const p = demoData.profile;
+    const g = p.generations;
+    const rate = g.total > 0 ? Math.round((g.success / g.total) * 100) : 0;
+    
+    document.getElementById('profileTokenBalance').textContent = p.tokenBalance;
+    document.getElementById('profileBonusBalance').textContent = p.bonusBalance;
+    document.getElementById('profileEarnedBonuses').textContent = p.earnedBonuses;
+    document.getElementById('profileReferrals').textContent = p.referrals;
+    document.getElementById('profileGenTotal').textContent = g.total;
+    document.getElementById('profileGenSuccess').textContent = g.success;
+    document.getElementById('profileGenUnfinished').textContent = g.unfinished;
+    document.getElementById('profileGenCanceled').textContent = g.canceled;
+    document.getElementById('profileGenRate').textContent = `${rate}%`;
+    document.getElementById('profileGenRateHint').textContent = `Успешных: ${g.success} из ${g.total}`;
+    document.getElementById('profileRegisteredAt').textContent = utils.formatDate(p.registeredAt);
+    document.getElementById('profileReferralLink').value = p.referralLink;
+    
+    this.open(dom.profileModalOverlay);
+  },
+
+  openConstructor() {
+    this.open(dom.constructorModalOverlay);
+  }
+};
+
+// Вспомогательные функции
+function toggleFavorite(promptId) {
+  const index = state.favorites.indexOf(promptId);
+  
+  if (index > -1) {
+    state.favorites.splice(index, 1);
+    utils.showToast('Удалено из избранного');
+  } else {
+    state.favorites.push(promptId);
+    utils.showToast('Добавлено в избранное');
+  }
+  
+  localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(state.favorites));
+  updatePrompts();
+}
+
+function toggleCurrentFavorite() {
+  const list = state.filteredPrompts.length ? state.filteredPrompts : state.prompts;
+  const prompt = list[modal.currentIndex];
+  
+  if (!prompt) return;
+  
+  toggleFavorite(prompt.id);
+  document.getElementById('promptModalFavBtn').textContent = 
+    state.favorites.includes(prompt.id) ? '❤ В избранном' : '❤ В избранное';
+}
+
+async function copyCurrentPrompt() {
+  const list = state.filteredPrompts.length ? state.filteredPrompts : state.prompts;
+  const prompt = list[modal.currentIndex];
+  
+  if (!prompt) return;
+  
+  const success = await utils.copyToClipboard(prompt.promptText || prompt.title);
+  
+  if (success) {
+    utils.showToast('Промпт скопирован. Вставьте его в чат с ботом');
+    prompt.copies = (prompt.copies || 0) + 1;
+    updatePrompts();
+  } else {
+    utils.showToast('Ошибка копирования', 'error');
+  }
+}
+
+function setupCarouselSwipe() {
+  const carousel = document.getElementById('promptCarousel');
+  if (!carousel) return;
+  
+  let startX = 0;
+  let isDown = false;
+  
+  carousel.addEventListener('touchstart', (e) => {
+    isDown = true;
+    startX = e.touches[0].clientX;
+  }, { passive: true });
+  
+  carousel.addEventListener('touchend', (e) => {
+    if (!isDown) return;
+    
+    isDown = false;
+    const endX = e.changedTouches[0]?.clientX || startX;
+    const distance = endX - startX;
+    
+    if (Math.abs(distance) > CONFIG.MIN_SWIPE_DISTANCE) {
+      distance > 0 ? modal.prev() : modal.next();
+    }
+  }, { passive: true });
+}
+
+// Конструктор промптов
+function initPromptBuilder() {
+  const builderData = {
+    pose: {
+      key: 'pose',
+      type: 'radio',
+      title: 'Действие и поза',
+      desc: 'Выберите основную позу персонажа',
+      icon: '🧍',
+      options: [
+        { value: 'Стоит', icon: '🧍', text: 'Стоит' },
+        { value: 'Сидит', icon: '🪑', text: 'Сидит' },
+        { value: 'Идёт', icon: '🚶', text: 'Идёт' },
+        { value: 'Держит предмет', icon: '✋', text: 'Держит предмет' },
+        { value: 'Расслабленная поза', icon: '😌', text: 'Расслабленная поза' },
+        { value: 'Динамичная поза', icon: '⚡', text: 'Динамичная поза' }
+      ]
+    },
+    clothes: {
+      key: 'clothes',
+      type: 'multi',
+      title: 'Одежда',
+      desc: 'Можно выбрать несколько вариантов',
+      icon: '👕',
+      options: [
+        { value: 'Классический костюм', icon: '🤵', text: 'Классический костюм' },
+        { value: 'Смокинг', icon: '🎩', text: 'Смокинг' },
+        { value: 'Блейзер с брюками', icon: '👔', text: 'Блейзер с брюками' },
+        { value: 'Вечернее платье', icon: '👗', text: 'Вечернее платье' },
+        { value: 'Худи', icon: '🧥', text: 'Худи' },
+        { value: 'Кожаная куртка', icon: '🧥', text: 'Кожаная куртка' },
+        { value: 'Джинсовка', icon: '🧢', text: 'Джинсовка' },
+        { value: 'Футболка', icon: '👕', text: 'Футболка' },
+        { value: 'Спортивная одежда', icon: '🏃', text: 'Спортивная одежда' },
+        { value: 'Винтаж', icon: '🕰️', text: 'Винтаж' },
+        { value: 'Бохо стиль', icon: '🌸', text: 'Бохо стиль' },
+        { value: 'Минимализм', icon: '⚪', text: 'Минимализм' }
+      ]
+    },
+    location: {
+      key: 'location',
+      type: 'multi',
+      title: 'Локация',
+      desc: 'Можно выбрать несколько',
+      icon: '📍',
+      options: [
+        { value: 'Неоновая улица', icon: '🌃', text: 'Неоновая улица' },
+        { value: 'Крыша с видом на город', icon: '🏙️', text: 'Крыша с видом на город' },
+        { value: 'Стена с граффити', icon: '🎨', text: 'Стена с граффити' },
+        { value: 'Современный офис', icon: '🏢', text: 'Современный офис' },
+        { value: 'Люксовый лаунж', icon: '🛋️', text: 'Люксовый лаунж' },
+        { value: 'Дождливая улица', icon: '🌧️', text: 'Дождливая улица' },
+        { value: 'Мощёная улица', icon: '🧱', text: 'Мощёная улица' },
+        { value: 'Индустриальный лофт', icon: '🏗️', text: 'Индустриальный лофт' }
+      ]
+    },
+    time: {
+      key: 'time',
+      type: 'radio',
+      title: 'Время суток',
+      desc: 'Выберите время',
+      icon: '🕒',
+      options: [
+        { value: 'Золотой час', icon: '🌅', text: 'Золотой час' },
+        { value: 'Рассвет', icon: '🌄', text: 'Рассвет' },
+        { value: 'Закат', icon: '🌇', text: 'Закат' },
+        { value: 'Синий час (сумерки)', icon: '🌆', text: 'Синий час (сумерки)' },
+        { value: 'Полдень', icon: '☀️', text: 'Полдень' },
+        { value: 'Ночь', icon: '🌙', text: 'Ночь' }
+      ]
+    },
+    lighting: {
+      key: 'lighting',
+      type: 'multi',
+      title: 'Освещение',
+      desc: 'Можно выбрать несколько',
+      icon: '💡',
+      options: [
+        { value: 'Естественный свет', icon: '☀️', text: 'Естественный свет' },
+        { value: 'Свет золотого часа', icon: '🌅', text: 'Свет золотого часа' },
+        { value: 'Неоновый свет', icon: '💡', text: 'Неоновый свет' },
+        { value: 'Студийное освещение', icon: '🎛️', text: 'Студийное освещение' },
+        { value: 'Уличное освещение', icon: '🏙️', text: 'Уличное освещение' },
+        { value: 'Свет свечей', icon: '🕯️', text: 'Свет свечей' },
+        { value: 'Гирлянды', icon: '✨', text: 'Гирлянды' }
+      ]
+    }
+  };
+
+  const builderState = {
+    pose: 'Стоит',
+    clothes: new Set(['Классический костюм']),
+    location: new Set(),
+    time: 'Золотой час',
+    lighting: new Set(['Естественный свет'])
+  };
+
+  const elements = {
+    sections: document.getElementById('pbSections'),
+    prompt: document.getElementById('pbPrompt'),
+    progressFill: document.getElementById('pbProgressFill'),
+    progressPercent: document.getElementById('pbProgressPercent'),
+    charCount: document.getElementById('pbCharCount'),
+    notification: document.getElementById('pbNotification'),
+    copyBtn: document.getElementById('pbCopyBtn'),
+    resetBtn: document.getElementById('pbResetBtn'),
+    expandBtn: document.getElementById('pbExpandBtn'),
+    collapseBtn: document.getElementById('pbCollapseAllBtn')
+  };
+
+  // Генерация секций
+  elements.sections.innerHTML = Object.values(builderData).map(section => `
+    <div class="pb-section" data-section>
+      <button class="pb-section__head" type="button" data-toggle="${section.key}">
+        <div class="pb-section__head-left">
+          <span class="pb-section__icon">${section.icon}</span>
+          <div class="pb-section__title-wrap">
+            <div class="pb-section__title">${section.title}</div>
+            <div class="pb-section__desc">${section.desc}</div>
+          </div>
+        </div>
+        <div class="pb-section__head-right">
+          ${section.type === 'radio' 
+            ? `<span class="pb-section__current" data-key="${section.key}">${builderState[section.key] || 'Не выбрано'}</span>`
+            : `<span class="pb-section__counter" data-key="${section.key}" style="display:${builderState[section.key].size > 0 ? 'flex' : 'none'}">${builderState[section.key].size}</span>`
+          }
+          <span class="pb-section__arrow">▼</span>
+        </div>
+      </button>
+      <div class="pb-section__body" data-body="${section.key}">
+        ${section.type === 'multi' ? '<div class="pb-section__note">Можно выбрать несколько</div>' : ''}
+        <div class="pb-pills ${section.type === 'radio' ? 'pb-radio' : 'pb-multi'}" data-key="${section.key}">
+          ${section.options.map(opt => `
+            <button class="pb-pill ${(section.type === 'radio' && builderState[section.key] === opt.value) || 
+                                    (section.type === 'multi' && builderState[section.key].has(opt.value)) ? 'is-active' : ''}" 
+                    type="button" data-value="${opt.value}">
+              <span class="pb-pill__icon">${opt.icon}</span>
+              <span class="pb-pill__text">${opt.text}</span>
+            </button>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  function updateProgress() {
+    const sections = Object.keys(builderData);
+    const filled = sections.filter(key => {
+      const value = builderState[key];
+      return value instanceof Set ? value.size > 0 : value && value.trim() !== '';
+    }).length;
+    
+    const percentage = Math.round((filled / sections.length) * 100);
+    elements.progressFill.style.width = `${percentage}%`;
+    elements.progressPercent.textContent = `${percentage}%`;
+    
+    // Обновление счетчиков
+    document.querySelectorAll('.pb-section__current[data-key="pose"]').forEach(el => {
+      el.textContent = builderState.pose || 'Не выбрано';
+    });
+    
+    document.querySelectorAll('.pb-section__current[data-key="time"]').forEach(el => {
+      el.textContent = builderState.time || 'Не выбрано';
+    });
+    
+    ['clothes', 'location', 'lighting'].forEach(key => {
+      const counterEls = document.querySelectorAll(`.pb-section__counter[data-key="${key}"]`);
+      const count = builderState[key].size;
+      counterEls.forEach(el => {
+        el.style.display = count > 0 ? 'flex' : 'none';
+        el.textContent = String(count);
+      });
+    });
+  }
+
+  function buildPrompt() {
+    const base = "Сгенерируй фотореалистичное фото по описанию.";
+    const parts = [];
+    
+    if (builderState.pose) parts.push(`Поза/действие: ${builderState.pose}`);
+    if (builderState.clothes.size) parts.push(`Одежда: ${Array.from(builderState.clothes).join(', ')}`);
+    if (builderState.location.size) parts.push(`Локация: ${Array.from(builderState.location).join(', ')}`);
+    if (builderState.time) parts.push(`Время суток: ${builderState.time}`);
+    if (builderState.lighting.size) parts.push(`Освещение: ${Array.from(builderState.lighting).join(', ')}`);
+    
+    const result = `${base}\n\n${parts.map(p => `• ${p}`).join('\n')}\n\nКачество: high detail, sharp, natural skin texture.`;
+    
+    elements.charCount.textContent = result.length.toLocaleString();
+    elements.prompt.value = result.trim();
+    
+    return result;
+  }
+
+  function showNotification(text, isError = false) {
+    elements.notification.textContent = text;
+    elements.notification.style.background = isError ? '#ef4444' : '#10B981';
+    elements.notification.classList.add('show');
+    
+    setTimeout(() => {
+      elements.notification.classList.remove('show');
+    }, 2000);
+  }
+
+  function resetBuilder() {
+    builderState.pose = '';
+    builderState.time = '';
+    builderState.clothes.clear();
+    builderState.location.clear();
+    builderState.lighting.clear();
+    
+    document.querySelectorAll('.pb-pill').forEach(pill => {
+      pill.classList.remove('is-active');
+    });
+    
+    buildPrompt();
+    updateProgress();
+    showNotification('Настройки конструктора сброшены');
+  }
+
+  // Обработчики событий
+  elements.sections.addEventListener('click', (e) => {
+    const target = e.target;
+    
+    // Переключение секций
+    const toggleBtn = target.closest('[data-toggle]');
+    if (toggleBtn) {
+      const section = toggleBtn.closest('[data-section]');
+      section.classList.toggle('is-collapsed');
+      return;
+    }
+    
+    // Выбор опций
+    const pill = target.closest('.pb-pill');
+    if (pill) {
+      const group = pill.closest('.pb-pills');
+      const key = group.dataset.key;
+      const value = pill.dataset.value;
+      
+      if (group.classList.contains('pb-radio')) {
+        // Радио-кнопки
+        document.querySelectorAll(`.pb-pills[data-key="${key}"] .pb-pill`).forEach(p => {
+          p.classList.remove('is-active');
+        });
+        pill.classList.add('is-active');
+        builderState[key] = value;
+      } else {
+        // Множественный выбор
+        if (pill.classList.contains('is-active')) {
+          pill.classList.remove('is-active');
+          builderState[key].delete(value);
+        } else {
+          pill.classList.add('is-active');
+          builderState[key].add(value);
+        }
+      }
+      
+      buildPrompt();
+      updateProgress();
+    }
+  });
+
+  elements.copyBtn.addEventListener('click', async () => {
+    const success = await utils.copyToClipboard(elements.prompt.value);
+    
+    if (success) {
+      showNotification('Промпт скопирован. Вставьте его в чат с ботом');
+    } else {
+      showNotification('Не удалось скопировать', true);
+    }
+  });
+
+  elements.resetBtn.addEventListener('click', resetBuilder);
+  
+  elements.expandBtn.addEventListener('click', () => {
+    elements.prompt.style.minHeight = elements.prompt.style.minHeight === '320px' ? '140px' : '320px';
+  });
+  
+  elements.collapseBtn.addEventListener('click', () => {
+    document.querySelectorAll('[data-section]').forEach(section => {
+      section.classList.add('is-collapsed');
+    });
+  });
+
+  // Инициализация
+  buildPrompt();
+  updateProgress();
+}
+
+// Инициализация приложения
+function initApp() {
+  // Загрузка данных
+  setTimeout(() => {
+    state.prompts = demoData.prompts;
+    state.filteredPrompts = [...demoData.prompts];
+    state.isLoading = false;
+    
+    // Обновление интерфейса
+    dom.loadingState.style.display = 'none';
+    renderCategories();
+    renderPrompts();
+    updateStats();
+    
+    // Инициализация реферальной секции
+    dom.invitedCount.textContent = demoData.profile.referrals;
+    dom.earnedBonuses.textContent = demoData.profile.earnedBonuses;
+    dom.bonusBalance.textContent = demoData.profile.bonusBalance;
+    dom.referralLink.value = demoData.profile.referralLink;
+    
+    // Инициализация конструктора
+    initPromptBuilder();
+  }, CONFIG.INIT_DELAY);
+}
+
+// Настройка обработчиков событий
+function setupEventListeners() {
+  // Поиск с debounce
+  dom.searchInput.addEventListener('input', utils.debounce(() => {
+    state.searchQuery = dom.searchInput.value.trim();
+    updatePrompts();
+  }, CONFIG.DEBOUNCE_DELAY));
+
+  // Фильтры категорий
+  dom.filterTabs.addEventListener('click', (e) => {
+    const tab = e.target.closest('.filter-tab');
+    if (!tab) return;
+    
+    const category = tab.dataset.category;
+    
+    if (category === 'все') {
+      state.activeCategories = new Set(['все']);
+    } else {
+      if (state.activeCategories.has('все')) {
+        state.activeCategories.delete('все');
+      }
+      
+      if (state.activeCategories.has(category)) {
+        state.activeCategories.delete(category);
+      } else {
+        state.activeCategories.add(category);
+      }
+      
+      if (state.activeCategories.size === 0) {
+        state.activeCategories.add('все');
+      }
+    }
+    
+    renderCategories();
+    updatePrompts();
+  });
+
+  // Сортировка
+  dom.sortSelect.addEventListener('change', (e) => {
+    state.sortBy = e.target.value;
+    updatePrompts();
+  });
+
+  // Кнопка избранного
+  dom.favoritesBtn.addEventListener('click', () => {
+    state.showOnlyFavorites = !state.showOnlyFavorites;
+    updatePrompts();
+    utils.showToast(
+      state.showOnlyFavorites 
+        ? 'Показаны только избранные промпты' 
+        : 'Показаны все промпты'
+    );
+  });
+
+  // Карточки промптов
+  dom.cardsGrid.addEventListener('click', (e) => {
+    const favBtn = e.target.closest('.favorite-btn');
+    if (favBtn) {
+      const id = parseInt(favBtn.dataset.id);
+      toggleFavorite(id);
+      return;
+    }
+    
+    const card = e.target.closest('.prompt-card');
+    if (card) {
+      const id = parseInt(card.dataset.id);
+      modal.openPrompt(id);
+    }
+  });
+
+  // Копирование реферальной ссылки
+  dom.copyReferralBtn.addEventListener('click', async () => {
+    const success = await utils.copyToClipboard(dom.referralLink.value || '');
+    
+    if (success) {
+      utils.showToast('Ссылка скопирована');
+      dom.copyReferralBtn.classList.add('is-copied');
+      setTimeout(() => dom.copyReferralBtn.classList.remove('is-copied'), 650);
+    } else {
+      utils.showToast('Ошибка копирования', 'error');
+    }
+  });
+
+  // Профиль
+  dom.profileBtn.addEventListener('click', () => modal.openProfile());
+  document.getElementById('profileModalClose').addEventListener('click', () => modal.close(dom.profileModalOverlay));
+  dom.profileModalOverlay.addEventListener('click', (e) => {
+    if (e.target === dom.profileModalOverlay) modal.close(dom.profileModalOverlay);
+  });
+  
+  document.getElementById('profileCopyReferralBtn').addEventListener('click', async () => {
+    const link = document.getElementById('profileReferralLink').value;
+    const success = await utils.copyToClipboard(link);
+    
+    if (success) {
+      utils.showToast('Ссылка скопирована');
+    } else {
+      utils.showToast('Ошибка копирования', 'error');
+    }
+  });
+
+  // Модальное окно промпта
+  document.getElementById('promptModalClose').addEventListener('click', () => modal.close(dom.promptModalOverlay));
+  dom.promptModalOverlay.addEventListener('click', (e) => {
+    if (e.target === dom.promptModalOverlay) modal.close(dom.promptModalOverlay);
+  });
+  
+  document.getElementById('promptPrevBtn').addEventListener('click', () => modal.prev());
+  document.getElementById('promptNextBtn').addEventListener('click', () => modal.next());
+  document.getElementById('promptModalCopyBtn').addEventListener('click', copyCurrentPrompt);
+  document.getElementById('promptModalFavBtn').addEventListener('click', toggleCurrentFavorite);
+
+  // Конструктор
+  dom.generateBtn.addEventListener('click', () => modal.openConstructor());
+  dom.tryFreeBtn.addEventListener('click', () => modal.openConstructor());
+  document.getElementById('constructorModalClose').addEventListener('click', () => modal.close(dom.constructorModalOverlay));
+  dom.constructorModalOverlay.addEventListener('click', (e) => {
+    if (e.target === dom.constructorModalOverlay) modal.close(dom.constructorModalOverlay);
+  });
+
+  // Глобальные события клавиатуры
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      if (dom.constructorModalOverlay.classList.contains('show')) {
+        modal.close(dom.constructorModalOverlay);
+      } else if (dom.profileModalOverlay.classList.contains('show')) {
+        modal.close(dom.profileModalOverlay);
+      } else if (dom.promptModalOverlay.classList.contains('show')) {
+        modal.close(dom.promptModalOverlay);
+      }
+    }
+    
+    if (dom.promptModalOverlay.classList.contains('show')) {
+      if (e.key === 'ArrowLeft') modal.prev();
+      if (e.key === 'ArrowRight') modal.next();
+    }
+  });
+
+  // Swipe для карусели
+  setupCarouselSwipe();
+}
+
+// Запуск приложения
+document.addEventListener('DOMContentLoaded', () => {
+  initApp();
+  setupEventListeners();
+});
