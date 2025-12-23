@@ -327,9 +327,19 @@
               </div>
             </div>
             <div class="pb-output__tools">
-              <button class="pb-tool" type="button" id="pbExpandBtn">Развернуть</button>
-              <button class="pb-tool" type="button" id="pbCollapseAllBtn">Свернуть все</button>
-            </div>
+  <button class="pb-tool" type="button" id="pbExpandBtn" title="Развернуть текстовое поле">
+    <svg class="pb-tool-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+    </svg>
+    <span class="pb-tool-text">Развернуть</span>
+  </button>
+  <button class="pb-tool" type="button" id="pbCollapseAllBtn" title="Свернуть все секции">
+    <svg class="pb-tool-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 15l-6-6-6 6"/>
+    </svg>
+    <span class="pb-tool-text">Свернуть все</span>
+  </button>
+</div>
           </div>
           <div class="pb-textarea-wrapper">
             <textarea class="pb-textarea" id="pbPrompt" readonly></textarea>

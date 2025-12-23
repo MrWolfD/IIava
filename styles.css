@@ -2897,4 +2897,96 @@ body.modal-open {
   .prompt-textarea {
     -webkit-overflow-scrolling: touch;
   }
+
+  /* ===============================
+   Mobile Constructor Tool Buttons
+   =============================== */
+@media (max-width: 768px) {
+  .pb-output__tools {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+    justify-content: flex-start;
+  }
+
+  .pb-tool {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    min-width: 44px;
+    height: 36px;
+    border-radius: 8px;
+    font-size: 13px;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  /* Для очень маленьких экранов скрываем текст, оставляем иконки */
+  @media (max-width: 480px) {
+    .pb-tool {
+      padding: 8px;
+      min-width: 36px;
+    }
+
+    .pb-tool-text {
+      display: none;
+    }
+
+    .pb-tool-icon {
+      display: block !important;
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  /* Перераспределение пространства в заголовке конструктора */
+  .pb-output__head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 14px 16px;
+  }
+
+  .pb-output__title-wrap {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .pb-output__stats {
+    align-self: flex-start;
+    font-size: 12px;
+  }
+}
+
+/* Для нормальных мобильных экранов показываем и текст, и иконки */
+@media (min-width: 481px) and (max-width: 768px) {
+  .pb-tool-icon {
+    display: none;
+  }
+}
+
+@media (max-width: 360px) {
+  .pb-output__tools {
+    gap: 4px;
+  }
+  
+  .pb-tool {
+    min-width: 32px;
+    height: 32px;
+    padding: 6px;
+    border-radius: 6px;
+  }
+  
+  .pb-tool-icon {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .pb-output__head {
+    padding: 12px 14px;
+  }
+}
+
 }
