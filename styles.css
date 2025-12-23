@@ -1328,42 +1328,47 @@ body {
   border-top: 1px solid var(--border);
 }
 
-.pb-actions button {
+/* Desktop — две кнопки в линию */
+@media (min-width: 768px) {
+  .pb-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.pb-actions .primary-btn,
+.pb-actions .secondary-btn {
   width: 100%;
   height: 48px;
-  border-radius: 14px;
-  font-weight: 700;
-  font-size: 15px;
-  line-height: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  -webkit-tap-highlight-color: transparent;
+  font-weight: 600;
+  font-size: 15px;
+  border-radius: var(--radius);
 }
 
 .pb-actions .primary-btn {
-  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+  background: var(--accent-gradient);
   color: #fff;
   border: none;
-  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.35);
 }
 
-.pb-actions .primary-btn:active {
-  transform: scale(0.98);
-  box-shadow: 0 4px 10px rgba(124, 58, 237, 0.35);
+.pb-actions .primary-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow);
 }
 
 .pb-actions .secondary-btn {
-  background: #ffffff;
-  color: #7c3aed;
-  border: 1.5px solid rgba(124, 58, 237, 0.35);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border: 1.5px solid var(--border);
 }
 
-.pb-actions .secondary-btn:active {
-  transform: scale(0.98);
+.pb-actions .secondary-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--bg-hover);
 }
 
 .pb-notification {
@@ -1831,6 +1836,7 @@ body {
     padding: 12px;
   }
 
+  /* КЛЮЧЕВОЕ ИЗМЕНЕНИЕ: кнопки идут сразу после изображения */
   .modal-grid {
     grid-template-columns: 1fr;
     grid-template-areas: "left" "actions" "right";
@@ -1840,9 +1846,13 @@ body {
   .detail-side-under {
     padding: 12px;
     border-radius: 16px;
+    margin-top: 0;
+    order: 2; /* Убедимся, что это идет вторым после изображения */
   }
 
   .kv {
+    display: flex;
+    flex-direction: column;
     gap: 8px;
   }
 
@@ -1877,11 +1887,14 @@ body {
     border-radius: 16px;
     padding: 14px;
     font-size: 13px;
+    order: 3; /* Текст промпта идет после кнопок */
   }
 
   /* Prompt Builder */
   .pb-actions {
+    display: flex;
     flex-direction: column;
+    gap: 12px;
   }
 
   /* Tutorial Modal mobile adjustments */
@@ -1921,6 +1934,48 @@ body {
   .prompt-image {
     aspect-ratio: 4/5;
     contain-intrinsic-size: 320px 400px;
+  }
+
+  /* Убираем абсолютное позиционирование статистики на изображении */
+  #promptCarousel::before {
+    display: none;
+  }
+
+  #promptModalStats {
+    position: static;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin: 0 0 10px 0;
+    width: 100%;
+  }
+
+  #promptModalStats .kv-card {
+    height: auto;
+    padding: 12px;
+    border-radius: 14px;
+    background: rgba(17,24,39,.02);
+    border: 1px solid rgba(17,24,39,.08);
+    backdrop-filter: none;
+    box-shadow: none;
+    pointer-events: auto;
+  }
+
+  #promptModalStats .kv-card .k {
+    display: block;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  #promptModalStats .kv-card .v {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-primary);
+    display: block;
+  }
+
+  #promptModalStats .kv-card .v::before {
+    display: none;
   }
 }
 
@@ -2161,8 +2216,6 @@ body {
     grid-template-columns: 1fr 1fr;
   }
 }
-
-/* Добавьте эти стили в конец файла styles.css */
 
 /* ===============================
    Mobile Compact Layout
@@ -2465,6 +2518,8 @@ body {
   }
   
   .kv {
+    display: flex;
+    flex-direction: column;
     gap: 6px;
   }
   
@@ -2691,5 +2746,155 @@ body {
   
   .prompt-card {
     margin: 0 4px;
+  }
+}
+
+/* ===============================
+   Fix Modal Scroll Issues
+   =============================== */
+
+.modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .modal-body {
+    padding: 12px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Ensure modal content doesn't overflow on mobile */
+  .modal {
+    display: flex;
+    flex-direction: column;
+  }
+}
+
+/* Ensure carousel doesn't interfere with scrolling */
+.carousel {
+  overflow: hidden;
+  position: relative;
+}
+
+/* Fix for prompt builder modal scroll */
+#promptBuilder.pb-wrap {
+  overflow: visible;
+}
+
+.pb-output {
+  position: relative;
+  overflow: visible;
+}
+
+/* Prevent body scroll when modal is open */
+body.modal-open {
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+/* Improve scrollbar appearance */
+.modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+  border-radius: 3px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.modal-body::-webkit-scrollbar-thumb:hover {
+  background: var(--text-tertiary);
+}
+
+/* Ensure modals are properly sized for content */
+.modal {
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+
+.modal-header {
+  flex-shrink: 0;
+}
+
+/* Fix for tutorial modal scroll */
+.tutorial-modal .modal-body {
+  overflow-y: auto;
+  max-height: calc(90vh - 70px);
+}
+
+/* Fix for profile modal stats */
+.kv {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 0;
+}
+
+/* Ensure textarea in prompt modal is scrollable */
+.prompt-textarea {
+  overflow-y: auto;
+  resize: none;
+}
+
+/* Mobile-specific modal fixes */
+@media (max-width: 768px) {
+  .modal {
+    max-height: 85vh;
+  }
+  
+  .modal-body {
+    padding-bottom: 20px;
+  }
+  
+  /* Prevent horizontal scroll on mobile */
+  .modal-grid {
+    overflow-x: hidden;
+  }
+  
+  .prompt-textarea {
+    max-height: 40vh;
+  }
+}
+
+/* Fix for constructor modal scrolling */
+#constructorModalOverlay .modal-body {
+  display: flex;
+  flex-direction: column;
+}
+
+#promptBuilder {
+  flex: 1;
+  overflow-y: visible;
+}
+
+.pb-sections {
+  overflow-y: visible;
+}
+
+.pb-output {
+  overflow-y: visible;
+}
+
+/* Touch device improvements */
+@media (hover: none) {
+  .modal-body {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+  }
+  
+  .prompt-textarea {
+    -webkit-overflow-scrolling: touch;
   }
 }

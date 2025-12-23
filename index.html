@@ -169,17 +169,19 @@
             <div class="carousel-counter" id="promptCarouselCounter">1 / 1</div>
           </div>
         </div>
-        <div class="detail-side detail-side-under">
-          <div id="promptModalStatsDock"><div class="kv" id="promptModalStats">
-            <div class="kv-card">
-              <div class="k">Копирований</div>
-              <div class="v" id="promptModalCopies">0</div>
+        <div class="detail-side-under">
+          <div id="promptModalStatsDock">
+            <div class="kv" id="promptModalStats">
+              <div class="kv-card">
+                <div class="k">Копирований</div>
+                <div class="v" id="promptModalCopies">0</div>
+              </div>
+              <div class="kv-card">
+                <div class="k">В избранном</div>
+                <div class="v" id="promptModalFavorites">0</div>
+              </div>
             </div>
-            <div class="kv-card">
-              <div class="k">В избранном</div>
-              <div class="v" id="promptModalFavorites">0</div>
-            </div>
-          </div></div>
+          </div>
           <div class="detail-actions">
             <button class="primary-btn" id="promptModalCopyBtn">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -336,14 +338,14 @@
             </div>
           </div>
           <div class="pb-actions">
-            <button class="pb-btn pb-btn-primary" type="button" id="pbCopyBtn">
+             <button class="primary-btn" type="button" id="pbCopyBtn">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
               Скопировать промпт
             </button>
-            <button class="pb-btn pb-btn-secondary" type="button" id="pbResetBtn">
+            <button class="secondary-btn" type="button" id="pbResetBtn">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 12a9 9 0 0 1-9 9 9 9 0 0 1-6.36-2.64"></path>
                 <path d="M3 12a9 9 0 0 1 9-9 9 9 0 0 1 6.36 2.64"></path>
@@ -413,5 +415,40 @@
 </div>
 
 <script src="app.js" defer></script>
+<script>
+// Polyfill для smooth scroll на iOS
+if ('scrollBehavior' in document.documentElement.style) {
+  // Browser supports native smooth scroll
+} else {
+  // Load polyfill if needed
+  const smoothScrollPolyfill = document.createElement('script');
+  smoothScrollPolyfill.src = 'https://unpkg.com/smoothscroll-polyfill@0.4.4/dist/smoothscroll.min.js';
+  smoothScrollPolyfill.onload = function() {
+    if (typeof smoothscroll !== 'undefined') {
+      smoothscroll.polyfill();
+    }
+  };
+  document.head.appendChild(smoothScrollPolyfill);
+}
+
+// Fix iOS 100vh issue for modals
+function setModalVH() {
+  const vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty('--vh', `${vh}px`);
+  
+  const modals = document.querySelectorAll('.modal');
+  modals.forEach(modal => {
+    if (window.innerWidth <= 768) {
+      modal.style.maxHeight = 'calc(var(--vh, 1vh) * 85)';
+    } else {
+      modal.style.maxHeight = 'min(90vh, 900px)';
+    }
+  });
+}
+
+window.addEventListener('load', setModalVH);
+window.addEventListener('resize', setModalVH);
+window.addEventListener('orientationchange', setModalVH);
+</script>
 </body>
 </html>

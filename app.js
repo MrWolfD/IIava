@@ -167,7 +167,7 @@ function renderPrompts() {
            alt="${prompt.title}" 
            class="prompt-image" 
            loading="lazy"
-           onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"300\" height=\"400\"><rect width=\"100%\" height=\"100%\" fill=\"%23f3f4f6\"/></svg>'
+           onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"300\" height=\"400\"><rect width=\"100%\" height=\"100%\" fill=\"%23f3f4f6\"/></svg>
       <div class="prompt-content">
         <h3 class="prompt-title">${prompt.title}</h3>
         <p class="prompt-description">${prompt.description}</p>
@@ -283,6 +283,13 @@ function isMobileView() {
   return window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
 }
 
+// Инициализация промптов при загрузке
+function initPrompts() {
+  state.prompts = demoData.prompts;
+  state.filteredPrompts = [...demoData.prompts];
+  state.isLoading = false;
+}
+
 // Переносим счетчики (копирования/избранное) в карусель на мобильных
 function syncPromptModalStatsPlacement() {
   const stats = document.getElementById('promptModalStats');
@@ -305,13 +312,26 @@ const modal = {
   open(el) {
     el.classList.add('show');
     el.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
     document.body.style.overflow = 'hidden';
+    
+    // Focus trap for accessibility
+    const focusable = el.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if (focusable.length) {
+      focusable[0].focus();
+    }
   },
 
   close(el) {
     el.classList.remove('show');
     el.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
     document.body.style.overflow = '';
+    
+    // Return focus to the element that opened the modal
+    if (el.lastFocusedElement) {
+      el.lastFocusedElement.focus();
+    }
   },
 
   openPrompt(promptId) {
@@ -386,20 +406,13 @@ const modal = {
   },
 
   openTutorial() {
-    // Проверяем, не видел ли пользователь туториал в этой сессии
     const hasSeenInSession = sessionStorage.getItem(CONFIG.TUTORIAL_KEY);
-    
-    // Показываем только если в текущей сессии еще не видели
     if (!hasSeenInSession) {
-      // Подождать немного, чтобы страница загрузилась
-      setTimeout(() => {
-        this.open(dom.tutorialModalOverlay);
-      }, 800);
+      this.open(dom.tutorialModalOverlay);
     }
   },
 
   closeTutorial() {
-    // Отмечаем, что пользователь видел туториал в этой сессии
     sessionStorage.setItem(CONFIG.TUTORIAL_KEY, 'true');
     this.close(dom.tutorialModalOverlay);
   }
@@ -706,8 +719,10 @@ function initPromptBuilder() {
     builderState.location.clear();
     builderState.lighting.clear();
 
-    document.querySelectorAll('#pbSections .pb-pill.is-active')
-      .forEach((pill) => pill.classList.remove('is-active'));
+    // Обновляем UI после сброса
+    document.querySelectorAll('.pb-pill.is-active').forEach(pill => {
+      pill.classList.remove('is-active');
+    });
 
     buildPrompt();
     updateProgress();
@@ -788,13 +803,11 @@ function initPromptBuilder() {
 // Инициализация приложения
 function initApp() {
   setTimeout(() => {
-    state.prompts = demoData.prompts;
-    state.filteredPrompts = [...demoData.prompts];
-    state.isLoading = false;
+    initPrompts();
     
     dom.loadingState.style.display = 'none';
     renderCategories();
-    renderPrompts();
+    updatePrompts();
     updateStats();
     
     dom.invitedCount.textContent = demoData.profile.referrals;
@@ -873,7 +886,11 @@ function setupEventListeners() {
   });
 
   // Профиль
-  dom.profileBtn.addEventListener('click', () => modal.openProfile());
+  dom.profileBtn.addEventListener('click', () => {
+    dom.profileModalOverlay.lastFocusedElement = dom.profileBtn;
+    modal.openProfile();
+  });
+  
   document.getElementById('profileModalClose').addEventListener('click', () => modal.close(dom.profileModalOverlay));
   dom.profileModalOverlay.addEventListener('click', (e) => {
     if (e.target === dom.profileModalOverlay) modal.close(dom.profileModalOverlay);
@@ -902,9 +919,20 @@ function setupEventListeners() {
   document.getElementById('promptModalFavBtn').addEventListener('click', toggleCurrentFavorite);
 
   // Конструктор - обе кнопки (десктопная и мобильная)
-  dom.generateBtn.addEventListener('click', () => modal.openConstructor());
-  dom.mobileGenerateBtn.addEventListener('click', () => modal.openConstructor());
-  dom.tryFreeBtn.addEventListener('click', () => modal.openConstructor());
+  dom.generateBtn.addEventListener('click', () => {
+    dom.constructorModalOverlay.lastFocusedElement = dom.generateBtn;
+    modal.openConstructor();
+  });
+  
+  dom.mobileGenerateBtn.addEventListener('click', () => {
+    dom.constructorModalOverlay.lastFocusedElement = dom.mobileGenerateBtn;
+    modal.openConstructor();
+  });
+  
+  dom.tryFreeBtn.addEventListener('click', () => {
+    dom.constructorModalOverlay.lastFocusedElement = dom.tryFreeBtn;
+    modal.openConstructor();
+  });
   
   document.getElementById('constructorModalClose').addEventListener('click', () => modal.close(dom.constructorModalOverlay));
   dom.constructorModalOverlay.addEventListener('click', (e) => {
