@@ -28,15 +28,26 @@
       <div class="logo-icon">NP</div>
       <span>NeuroPhoto</span>
     </a>
-    <div class="search-container">
-      <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="11" cy="11" r="8"></circle>
-        <path d="m21 21-4.35-4.35"></path>
-      </svg>
-      <input type="text" class="search-input" placeholder="Поиск по промптам, стилям, тегам..." id="searchInput">
+    
+    <!-- Мобильная строка поиска с кнопкой -->
+    <div class="mobile-search-row" id="mobileSearchRow">
+      <div class="search-container">
+        <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <input type="text" class="search-input" placeholder="Поиск по промптам, стилям, тегам..." id="searchInput">
+      </div>
+      <button class="mobile-generate-btn" id="mobileGenerateBtn" title="Собрать промпт">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 5v14M5 12h14"></path>
+        </svg>
+        <span class="btn-text">Собрать</span>
+      </button>
     </div>
+    
     <div class="user-menu">
-      <button class="user-btn" id="generateBtn" title="Соберите промпт и используйте его в боте">
+      <button class="user-btn desktop-generate-btn" id="generateBtn" title="Соберите промпт и используйте его в боте">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M12 5v14M5 12h14"></path>
         </svg>
@@ -124,6 +135,7 @@
   </section>
 </main>
 
+<!-- Prompt Modal -->
 <div class="modal-overlay" id="promptModalOverlay" aria-hidden="true">
   <div class="modal" role="dialog" aria-modal="true" aria-label="Просмотр промпта">
     <div class="modal-header">
@@ -188,6 +200,7 @@
   </div>
 </div>
 
+<!-- Profile Modal -->
 <div class="modal-overlay" id="profileModalOverlay" aria-hidden="true">
   <div class="modal" role="dialog" aria-modal="true" aria-label="Профиль">
     <div class="modal-header">
@@ -274,6 +287,7 @@
   </div>
 </div>
 
+<!-- Constructor Modal -->
 <div class="modal-overlay" id="constructorModalOverlay" aria-hidden="true">
   <div class="modal" role="dialog" aria-modal="true" aria-label="Конструктор промпта">
     <div class="modal-header">
@@ -341,6 +355,51 @@
           </div>
           <div class="pb-notification" id="pbNotification"></div>
         </footer>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tutorial Modal -->
+<div class="modal-overlay" id="tutorialModalOverlay" aria-hidden="true">
+  <div class="modal tutorial-modal" role="dialog" aria-modal="true" aria-label="Как пользоваться NeuroPhoto">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">👋 Добро пожаловать в NeuroPhoto!</div>
+        <div class="modal-subtitle">Кратко о возможностях</div>
+      </div>
+    </div>
+    <div class="modal-body">
+      <div class="tutorial-steps">
+        <div class="tutorial-step">
+          <div class="tutorial-step-icon">🔍</div>
+          <div class="tutorial-step-content">
+            <h3>Ищите готовые промпты</h3>
+            <p>Используйте фильтры и поиск по библиотеке промптов</p>
+          </div>
+        </div>
+        <div class="tutorial-step">
+          <div class="tutorial-step-icon">❤️</div>
+          <div class="tutorial-step-content">
+            <h3>Сохраняйте в избранное</h3>
+            <p>Нажимайте на сердечко, чтобы быстро находить нужные промпты</p>
+          </div>
+        </div>
+        <div class="tutorial-step">
+          <div class="tutorial-step-icon">📋</div>
+          <div class="tutorial-step-content">
+            <h3>Копируйте и используйте</h3>
+            <p>Открывайте промпт, копируйте текст и отправляйте <a href="https://t.me/neurophoto_bot" target="_blank" style="color: var(--accent);">в бота</a></p>
+          </div>
+        </div>
+      </div>
+      <div class="tutorial-actions">
+        <button class="primary-btn" id="tutorialGotItBtn" style="min-width: 160px;">
+          Понятно, закрыть
+        </button>
+        <div class="modal-note" style="text-align: center; margin-top: 8px; font-size: 12px;">
+          Это окно показывается при каждом новом открытии сайта
+        </div>
       </div>
     </div>
   </div>

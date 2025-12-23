@@ -5,7 +5,8 @@ const CONFIG = {
   DEBOUNCE_DELAY: 300,
   INIT_DELAY: 700,
   STORAGE_KEY: 'neurophoto_favorites',
-  MIN_SWIPE_DISTANCE: 55
+  MIN_SWIPE_DISTANCE: 55,
+  TUTORIAL_KEY: 'neurophoto_tutorial_seen_session'
 };
 
 // Состояние приложения
@@ -62,6 +63,7 @@ const dom = {
   searchInput: document.getElementById('searchInput'),
   favoritesBtn: document.getElementById('favoritesBtn'),
   generateBtn: document.getElementById('generateBtn'),
+  mobileGenerateBtn: document.getElementById('mobileGenerateBtn'),
   tryFreeBtn: document.getElementById('tryFreeBtn'),
   invitedCount: document.getElementById('invitedCount'),
   earnedBonuses: document.getElementById('earnedBonuses'),
@@ -71,7 +73,9 @@ const dom = {
   profileBtn: document.getElementById('profileBtn'),
   promptModalOverlay: document.getElementById('promptModalOverlay'),
   profileModalOverlay: document.getElementById('profileModalOverlay'),
-  constructorModalOverlay: document.getElementById('constructorModalOverlay')
+  constructorModalOverlay: document.getElementById('constructorModalOverlay'),
+  tutorialModalOverlay: document.getElementById('tutorialModalOverlay'),
+  tutorialGotItBtn: document.getElementById('tutorialGotItBtn')
 };
 
 // Утилиты
@@ -163,7 +167,7 @@ function renderPrompts() {
            alt="${prompt.title}" 
            class="prompt-image" 
            loading="lazy"
-           onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"300\" height=\"400\"><rect width=\"100%\" height=\"100%\" fill=\"%23f3f4f6\"/></svg>
+           onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"300\" height=\"400\"><rect width=\"100%\" height=\"100%\" fill=\"%23f3f4f6\"/></svg>'
       <div class="prompt-content">
         <h3 class="prompt-title">${prompt.title}</h3>
         <p class="prompt-description">${prompt.description}</p>
@@ -262,7 +266,7 @@ function updateStats() {
 
   dom.favoritesBtn.classList.toggle('active', state.showOnlyFavorites);
 
-  // ✅ Иконка профиля (чтобы кнопка не была пустой)
+  // Иконка профиля
   if (dom.profileBtn && !dom.profileBtn.innerHTML.trim()) {
     dom.profileBtn.innerHTML = `
       <svg width="20" height="20" viewBox="0 0 24 24"
@@ -275,13 +279,11 @@ function updateStats() {
   }
 }
 
-
-
 function isMobileView() {
   return window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
 }
 
-// Переносим счетчики (копирования/избранное) в карусель на мобильных, чтобы освободить место
+// Переносим счетчики (копирования/избранное) в карусель на мобильных
 function syncPromptModalStatsPlacement() {
   const stats = document.getElementById('promptModalStats');
   const dock = document.getElementById('promptModalStatsDock');
@@ -336,11 +338,8 @@ const modal = {
     document.getElementById('promptModalFavBtn').textContent = 
       state.favorites.includes(prompt.id) ? '❤ В избранном' : '❤ В избранное';
     document.getElementById('promptCarouselCounter').textContent = `${this.currentIndex + 1} / ${list.length}`;
-    
 
-    // На мобильных переносим счетчики поверх изображения
     syncPromptModalStatsPlacement();
-
     this.open(dom.promptModalOverlay);
   },
 
@@ -380,11 +379,29 @@ const modal = {
   },
 
   openConstructor() {
-    // Открываем всегда «с чистого листа»: пусто + всё свернуто
     if (window.__promptBuilder && typeof window.__promptBuilder.resetOnOpen === 'function') {
       window.__promptBuilder.resetOnOpen();
     }
     this.open(dom.constructorModalOverlay);
+  },
+
+  openTutorial() {
+    // Проверяем, не видел ли пользователь туториал в этой сессии
+    const hasSeenInSession = sessionStorage.getItem(CONFIG.TUTORIAL_KEY);
+    
+    // Показываем только если в текущей сессии еще не видели
+    if (!hasSeenInSession) {
+      // Подождать немного, чтобы страница загрузилась
+      setTimeout(() => {
+        this.open(dom.tutorialModalOverlay);
+      }, 800);
+    }
+  },
+
+  closeTutorial() {
+    // Отмечаем, что пользователь видел туториал в этой сессии
+    sessionStorage.setItem(CONFIG.TUTORIAL_KEY, 'true');
+    this.close(dom.tutorialModalOverlay);
   }
 };
 
@@ -642,7 +659,6 @@ function initPromptBuilder() {
     if (builderState.time) parts.push(`Время суток: ${builderState.time}`);
     if (builderState.lighting.size) parts.push(`Освещение: ${Array.from(builderState.lighting).join(', ')}`);
     
-    // Если ничего не выбрано — держим поле пустым
     if (parts.length === 0) {
       elements.charCount.textContent = '0';
       elements.prompt.value = '';
@@ -683,7 +699,6 @@ function initPromptBuilder() {
     showNotification('Настройки конструктора сброшены');
   }
 
-  // Тихий сброс — используется при открытии конструктора (без уведомлений)
   function resetBuilderSilent(collapseAll = true) {
     builderState.pose = '';
     builderState.time = '';
@@ -691,29 +706,22 @@ function initPromptBuilder() {
     builderState.location.clear();
     builderState.lighting.clear();
 
-    // снять активные элементы
     document.querySelectorAll('#pbSections .pb-pill.is-active')
       .forEach((pill) => pill.classList.remove('is-active'));
 
-    // обновить текст/прогресс
     buildPrompt();
     updateProgress();
-
-    // скрыть возможное уведомление
     elements.notification.classList.remove('show');
 
-    // свернуть все секции
     if (collapseAll) {
       document.querySelectorAll('#pbSections [data-section]')
         .forEach((section) => section.classList.add('is-collapsed'));
     }
   }
 
-  // Обработчики событий
   elements.sections.addEventListener('click', (e) => {
     const target = e.target;
     
-    // Переключение секций
     const toggleBtn = target.closest('[data-toggle]');
     if (toggleBtn) {
       const section = toggleBtn.closest('[data-section]');
@@ -721,7 +729,6 @@ function initPromptBuilder() {
       return;
     }
     
-    // Выбор опций
     const pill = target.closest('.pb-pill');
     if (pill) {
       const group = pill.closest('.pb-pills');
@@ -729,14 +736,12 @@ function initPromptBuilder() {
       const value = pill.dataset.value;
       
       if (group.classList.contains('pb-radio')) {
-        // Радио-кнопки
         document.querySelectorAll(`.pb-pills[data-key="${key}"] .pb-pill`).forEach(p => {
           p.classList.remove('is-active');
         });
         pill.classList.add('is-active');
         builderState[key] = value;
       } else {
-        // Множественный выбор
         if (pill.classList.contains('is-active')) {
           pill.classList.remove('is-active');
           builderState[key].delete(value);
@@ -773,10 +778,8 @@ function initPromptBuilder() {
     });
   });
 
-  // Инициализация
   resetBuilderSilent(true);
 
-  // Публичный API — нужен, чтобы при каждом открытии конструктора он был пустым и свернутым
   window.__promptBuilder = {
     resetOnOpen: () => resetBuilderSilent(true)
   };
@@ -784,25 +787,21 @@ function initPromptBuilder() {
 
 // Инициализация приложения
 function initApp() {
-  // Загрузка данных
   setTimeout(() => {
     state.prompts = demoData.prompts;
     state.filteredPrompts = [...demoData.prompts];
     state.isLoading = false;
     
-    // Обновление интерфейса
     dom.loadingState.style.display = 'none';
     renderCategories();
     renderPrompts();
     updateStats();
     
-    // Инициализация реферальной секции
     dom.invitedCount.textContent = demoData.profile.referrals;
     dom.earnedBonuses.textContent = demoData.profile.earnedBonuses;
     dom.bonusBalance.textContent = demoData.profile.bonusBalance;
     dom.referralLink.value = demoData.profile.referralLink;
     
-    // Инициализация конструктора
     initPromptBuilder();
   }, CONFIG.INIT_DELAY);
 }
@@ -821,24 +820,7 @@ function setupEventListeners() {
     if (!tab) return;
     
     const category = tab.dataset.category;
-    
-    if (category === 'все') {
-      state.activeCategories = new Set(['все']);
-    } else {
-      if (state.activeCategories.has('все')) {
-        state.activeCategories.delete('все');
-      }
-      
-      if (state.activeCategories.has(category)) {
-        state.activeCategories.delete(category);
-      } else {
-        state.activeCategories.add(category);
-      }
-      
-      if (state.activeCategories.size === 0) {
-        state.activeCategories.add('все');
-      }
-    }
+    state.activeCategories = new Set([category]);
     
     renderCategories();
     updatePrompts();
@@ -919,18 +901,33 @@ function setupEventListeners() {
   document.getElementById('promptModalCopyBtn').addEventListener('click', copyCurrentPrompt);
   document.getElementById('promptModalFavBtn').addEventListener('click', toggleCurrentFavorite);
 
-  // Конструктор
+  // Конструктор - обе кнопки (десктопная и мобильная)
   dom.generateBtn.addEventListener('click', () => modal.openConstructor());
+  dom.mobileGenerateBtn.addEventListener('click', () => modal.openConstructor());
   dom.tryFreeBtn.addEventListener('click', () => modal.openConstructor());
+  
   document.getElementById('constructorModalClose').addEventListener('click', () => modal.close(dom.constructorModalOverlay));
   dom.constructorModalOverlay.addEventListener('click', (e) => {
     if (e.target === dom.constructorModalOverlay) modal.close(dom.constructorModalOverlay);
   });
 
+  // Туториал
+  if (dom.tutorialGotItBtn) {
+    dom.tutorialGotItBtn.addEventListener('click', () => modal.closeTutorial());
+  }
+  
+  if (dom.tutorialModalOverlay) {
+    dom.tutorialModalOverlay.addEventListener('click', (e) => {
+      if (e.target === dom.tutorialModalOverlay) modal.closeTutorial();
+    });
+  }
+
   // Глобальные события клавиатуры
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      if (dom.constructorModalOverlay.classList.contains('show')) {
+      if (dom.tutorialModalOverlay.classList.contains('show')) {
+        modal.closeTutorial();
+      } else if (dom.constructorModalOverlay.classList.contains('show')) {
         modal.close(dom.constructorModalOverlay);
       } else if (dom.profileModalOverlay.classList.contains('show')) {
         modal.close(dom.profileModalOverlay);
@@ -949,13 +946,48 @@ function setupEventListeners() {
   setupCarouselSwipe();
 }
 
+// Функция для перемещения баннера на мобильных устройствах
+function moveBannerForMobile() {
+  const banner = document.querySelector('.hero-banner');
+  const container = document.querySelector('.container');
+  const header = document.querySelector('header');
+  
+  if (!banner || !container || !header) return;
+  
+  if (window.innerWidth <= 768) {
+    if (!banner.classList.contains('moved-to-bottom')) {
+      container.after(banner);
+      banner.classList.add('moved-to-bottom');
+      banner.style.marginTop = '0';
+      banner.style.marginBottom = '24px';
+    }
+  } else {
+    if (banner.classList.contains('moved-to-bottom')) {
+      header.after(banner);
+      banner.classList.remove('moved-to-bottom');
+      banner.style.marginTop = '32px';
+      banner.style.marginBottom = '';
+    }
+  }
+}
+
 // Запуск приложения
 document.addEventListener('DOMContentLoaded', () => {
   initApp();
   setupEventListeners();
+  
+  // Показать туториал при загрузке (с небольшой задержкой)
+  setTimeout(() => {
+    modal.openTutorial();
+  }, 1000);
+  
   window.addEventListener('resize', () => {
     if (dom.promptModalOverlay.classList.contains('show')) {
       syncPromptModalStatsPlacement();
     }
+    moveBannerForMobile();
   });
+  
+  // Перенос баннера при загрузке
+  moveBannerForMobile();
 });

@@ -80,6 +80,11 @@ body {
   font-weight: 700;
 }
 
+/* Мобильная строка поиска - скрыта на десктопе */
+.mobile-search-row {
+  display: none;
+}
+
 /* Search */
 .search-container {
   flex: 1;
@@ -112,6 +117,11 @@ body {
   transform: translateY(-50%);
   color: var(--text-tertiary);
   pointer-events: none;
+}
+
+/* Мобильная кнопка "Собрать" */
+.mobile-generate-btn {
+  display: none;
 }
 
 /* User Menu */
@@ -376,36 +386,40 @@ body {
 }
 
 .prompt-content {
-  padding: 18px 18px 14px;
+  padding: 14px 18px 14px;
 }
 
 .prompt-title {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 600;
-  margin-bottom: 10px;
-  line-height: 1.4;
+  margin-bottom: 6px;
+  line-height: 1.35;
   color: var(--text-primary);
 }
 
 .prompt-description {
-  font-size: 14px;
+  font-size: 13.5px;
   color: var(--text-secondary);
-  margin-bottom: 12px;
-  line-height: 1.5;
+  margin-bottom: 8px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .prompt-meta {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding-top: 12px;
+  align-items: flex-start;
+  margin-top: 8px;
+  padding-top: 8px;
   border-top: 1px solid var(--border-light);
 }
 
 .prompt-stats {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   font-size: 13px;
   color: var(--text-tertiary);
 }
@@ -417,14 +431,13 @@ body {
 }
 
 .prompt-actions {
-  display: flex;
-  gap: 8px;
+  margin-top: -4px;
 }
 
 .action-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
   border: 1.5px solid var(--border);
   background: var(--bg-primary);
   color: var(--text-secondary);
@@ -433,6 +446,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+  top: -2px;
 }
 
 .action-btn:hover {
@@ -757,11 +772,6 @@ body {
   border-color: var(--accent);
   color: var(--accent);
   background: var(--bg-hover);
-}
-
-.modal-body {
-  padding: 20px;
-  overflow: auto;
 }
 
 /* Modal Grid */
@@ -1311,68 +1321,49 @@ body {
 }
 
 .pb-actions {
-  display: flex;
-  gap: 12px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
   padding: 20px;
   border-top: 1px solid var(--border);
 }
 
-.pb-btn {
-  flex: 1;
+.pb-actions button {
+  width: 100%;
   height: 48px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 15px;
+  line-height: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 0 22px;
-  border-radius: 12px;
-  font-size: 15px;
-  font-weight: 700;
-  letter-spacing: .2px;
+  gap: 8px;
   cursor: pointer;
-  transition: all .18s cubic-bezier(.2,.8,.2,1);
-  user-select: none;
-  white-space: nowrap;
+  transition: all 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.pb-btn svg {
-  flex-shrink: 0;
-}
-
-.pb-btn-primary {
-  border: none;
-  background: var(--accent-gradient);
+.pb-actions .primary-btn {
+  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
   color: #fff;
-  box-shadow: 0 10px 28px rgba(139,92,246,.28);
+  border: none;
+  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.35);
 }
 
-.pb-btn-primary:hover {
-  transform: translateY(-1px);
-  filter: brightness(1.02);
-  box-shadow: 0 14px 34px rgba(139,92,246,.38);
+.pb-actions .primary-btn:active {
+  transform: scale(0.98);
+  box-shadow: 0 4px 10px rgba(124, 58, 237, 0.35);
 }
 
-.pb-btn-primary:active {
-  transform: translateY(0)scale(.98);
-  box-shadow: 0 8px 22px rgba(139,92,246,.28);
+.pb-actions .secondary-btn {
+  background: #ffffff;
+  color: #7c3aed;
+  border: 1.5px solid rgba(124, 58, 237, 0.35);
 }
 
-.pb-btn-secondary {
-  background: rgba(139,92,246,.06);
-  border: 1px solid rgba(139,92,246,.35);
-  color: #6D28D9;
-}
-
-.pb-btn-secondary:hover {
-  background: rgba(139,92,246,.10);
-  border-color: rgba(139,92,246,.55);
-  transform: translateY(-1px);
-  box-shadow: 0 10px 26px rgba(139,92,246,.18);
-}
-
-.pb-btn-secondary:active {
-  transform: translateY(0)scale(.98);
-  box-shadow: 0 6px 18px rgba(139,92,246,.14);
+.pb-actions .secondary-btn:active {
+  transform: scale(0.98);
 }
 
 .pb-notification {
@@ -1391,6 +1382,64 @@ body {
   box-shadow: var(--shadow-lg);
 }
 
+/* Tutorial Modal Styles */
+.tutorial-modal {
+  max-width: 560px;
+  max-height: 80vh;
+}
+
+.tutorial-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-bottom: 28px;
+}
+
+.tutorial-step {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.tutorial-step-icon {
+  width: 32px;
+  height: 32px;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.tutorial-step-content {
+  flex: 1;
+}
+
+.tutorial-step-content h3 {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+}
+
+.tutorial-step-content p {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+.tutorial-step-content a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.tutorial-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
 
 /* Touch devices: disable hover-only effects for a cleaner mobile feel */
 @media (hover: none) {
@@ -1433,6 +1482,155 @@ body {
   }
 }
 
+/* ===============================
+   Mobile Header Restructuring
+   Поиск + кнопка в одной строке
+   =============================== */
+
+@media (max-width: 768px) {
+  .header {
+    padding: 14px 16px;
+  }
+
+  .header-content {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 12px 16px;
+    align-items: center;
+  }
+
+  .logo {
+    grid-column: 1;
+    grid-row: 1;
+    font-size: 20px;
+    gap: 10px;
+  }
+
+  .logo-icon {
+    width: 34px;
+    height: 34px;
+    font-size: 15px;
+    border-radius: 9px;
+  }
+
+  .logo span {
+    font-size: 18px;
+  }
+
+  /* Прячем десктопную кнопку на мобильных */
+  .desktop-generate-btn {
+    display: none !important;
+  }
+
+  /* Показываем мобильную строку поиска */
+  .mobile-search-row {
+    display: flex;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+  }
+
+  /* Поиск занимает большую часть пространства */
+  .search-container {
+    flex: 1;
+    max-width: none;
+    margin: 0;
+  }
+
+  .search-input {
+    width: 100%;
+    padding: 12px 16px 12px 44px;
+    border-radius: 14px;
+    font-size: 15px;
+    height: 48px;
+  }
+
+  .search-icon {
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  /* Мобильная кнопка "Собрать" */
+  .mobile-generate-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 16px;
+    height: 48px;
+    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 15px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.25);
+    flex-shrink: 0;
+    min-width: 100px;
+  }
+
+  .mobile-generate-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
+  }
+
+  .mobile-generate-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(139, 92, 246, 0.25);
+  }
+
+  .mobile-generate-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2.5;
+  }
+
+  .btn-text {
+    display: inline;
+  }
+
+  /* Иконки избранного и профиля */
+  .user-menu {
+    grid-column: 3;
+    grid-row: 1;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+  }
+
+  .icon-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+  }
+
+  .icon-btn svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+/* Скрываем мобильную строку поиска на десктопе */
+@media (min-width: 769px) {
+  .mobile-search-row {
+    display: none;
+  }
+  
+  .mobile-generate-btn {
+    display: none;
+  }
+  
+  .desktop-generate-btn {
+    display: inline-flex !important;
+  }
+}
 
 /* Media Queries */
 @media (max-width:1024px) {
@@ -1451,54 +1649,83 @@ body {
   }
 
   .header-content {
-    flex-direction: column;
-    gap: 14px;
-    align-items: stretch;
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 12px 16px;
   }
 
   .logo {
-    font-size: 22px;
+    font-size: 20px;
+    gap: 10px;
   }
 
   .logo-icon {
     width: 34px;
     height: 34px;
-    border-radius: 10px;
+    border-radius: 9px;
+  }
+
+  .logo span {
+    font-size: 18px;
+  }
+
+  .desktop-generate-btn {
+    display: none !important;
+  }
+
+  .mobile-search-row {
+    display: flex;
+    grid-column: 1 / -1;
+    grid-row: 2;
+    gap: 10px;
+    width: 100%;
   }
 
   .search-container {
-    order: 3;
-    width: 100%;
-    max-width: 100%;
+    flex: 1;
+    max-width: none;
+    margin: 0;
   }
 
   .search-input {
-    padding: 12px 16px 12px 46px;
-    border-radius: 16px;
+    padding: 12px 16px 12px 44px;
+    border-radius: 14px;
     font-size: 15px;
+    height: 48px;
   }
 
   .search-icon {
     left: 16px;
   }
 
-  .user-menu {
-    width: 100%;
-    justify-content: space-between;
-    gap: 10px;
+  .mobile-generate-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 0 16px;
+    height: 48px;
+    background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+    color: white;
+    border: none;
+    border-radius: 14px;
+    font-weight: 600;
+    font-size: 15px;
+    min-width: 100px;
   }
 
-  .user-btn {
-    height: 42px;
-    padding: 11px 16px;
-    font-size: 13px;
-    border-radius: 12px;
+  .user-menu {
+    grid-column: 3;
+    grid-row: 1;
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
   }
 
   .icon-btn {
-    width: 42px;
-    height: 42px;
-    border-radius: 12px;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
   }
 
   .hero-banner {
@@ -1543,16 +1770,33 @@ body {
   }
 
   .prompt-content {
-    padding: 14px 14px 12px;
+    padding: 12px 14px 12px;
   }
 
   .prompt-title {
     font-size: 16px;
-    margin-bottom: 8px;
+    margin-bottom: 4px;
   }
 
   .prompt-description {
-    margin-bottom: 10px;
+    font-size: 13px;
+    margin-bottom: 6px;
+  }
+
+  .prompt-meta {
+    margin-top: 6px;
+    padding-top: 6px;
+  }
+
+  .favorite-btn {
+    width: 30px;
+    height: 30px;
+    top: -1px;
+  }
+
+  .prompt-stats {
+    gap: 10px;
+    font-size: 12px;
   }
 
   .referral-section {
@@ -1640,6 +1884,39 @@ body {
     flex-direction: column;
   }
 
+  /* Tutorial Modal mobile adjustments */
+  .tutorial-modal {
+    max-height: 85vh;
+  }
+  
+  .tutorial-steps {
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .tutorial-step {
+    gap: 12px;
+  }
+  
+  .tutorial-step-icon {
+    width: 28px;
+    height: 28px;
+    font-size: 18px;
+  }
+  
+  .tutorial-step-content h3 {
+    font-size: 15px;
+  }
+  
+  .tutorial-step-content p {
+    font-size: 13px;
+  }
+  
+  .tutorial-actions {
+    gap: 12px;
+    padding-top: 16px;
+  }
+
   /* Image aspect ratio: mobile 4:5 */
   .prompt-image {
     aspect-ratio: 4/5;
@@ -1647,25 +1924,69 @@ body {
   }
 }
 
+@media (max-width: 480px) {
+  .header-content {
+    gap: 10px 12px;
+  }
+  
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .logo span {
+    font-size: 16px;
+  }
+  
+  .mobile-search-row {
+    gap: 8px;
+  }
+  
+  .search-input {
+    height: 44px;
+    padding: 10px 14px 10px 40px;
+    font-size: 14px;
+  }
+  
+  .mobile-generate-btn {
+    height: 44px;
+    padding: 0 14px;
+    font-size: 14px;
+    min-width: 90px;
+  }
+  
+  .mobile-generate-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .user-menu {
+    gap: 8px;
+  }
+  
+  .icon-btn {
+    width: 36px;
+    height: 36px;
+  }
 
-@media (max-width:480px) {
   .cards-grid {
     grid-template-columns: 1fr;
   }
 
   .prompt-meta {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 12px;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
   }
 
   .prompt-stats {
-    gap: 14px;
+    flex: 1;
+    justify-content: space-between;
   }
 
-  .prompt-actions {
-    width: 100%;
-    justify-content: flex-end;
+  .favorite-btn {
+    order: -1;
+    margin-right: 4px;
   }
 
   .stats-bar {
@@ -1696,8 +2017,27 @@ body {
   }
 }
 
+/* На очень маленьких экранах скрываем текст логотипа */
+@media (max-width: 360px) {
+  .logo span {
+    display: none;
+  }
+  
+  .mobile-generate-btn .btn-text {
+    display: none;
+  }
+  
+  .mobile-generate-btn {
+    min-width: 48px;
+    padding: 0;
+    width: 48px;
+    justify-content: center;
+  }
+  
+  .mobile-generate-btn svg {
+    margin: 0;
+  }
 
-@media (max-width:360px) {
   .prompt-card {
     margin: 0 8px;
   }
@@ -1716,74 +2056,6 @@ body {
     transition-duration: .01ms !important;
   }
 }
-
-
-/* ===============================
-   Prompt Builder — action buttons
-   Mobile & Desktop safe fix
-   =============================== */
-
-.pb-actions {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-}
-
-/* Общая база для кнопок */
-.pb-actions button {
-  width: 100%;
-  height: 48px;
-  border-radius: 14px;
-  font-weight: 700;
-  font-size: 15px;
-  line-height: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  -webkit-tap-highlight-color: transparent;
-}
-
-/* Primary — Скопировать промпт */
-.pb-actions .primary-btn {
-  background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-  color: #fff;
-  border: none;
-  box-shadow: 0 6px 16px rgba(124, 58, 237, 0.35);
-}
-
-.pb-actions .primary-btn:active {
-  transform: scale(0.98);
-  box-shadow: 0 4px 10px rgba(124, 58, 237, 0.35);
-}
-
-/* Secondary — Сбросить всё */
-.pb-actions .secondary-btn {
-  background: #ffffff;
-  color: #7c3aed;
-  border: 1.5px solid rgba(124, 58, 237, 0.35);
-}
-
-.pb-actions .secondary-btn:active {
-  transform: scale(0.98);
-}
-
-/* Иконки внутри кнопок */
-.pb-actions svg {
-  width: 18px;
-  height: 18px;
-  stroke-width: 2;
-}
-
-/* Desktop — две кнопки в линию */
-@media (min-width: 768px) {
-  .pb-actions {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-
 
 /* ===============================
    Mobile: smart chips over image (prompt modal)
@@ -1815,9 +2087,9 @@ body {
     display: flex;
     gap: 8px;
     width: auto;
-    grid-template-columns: none; /* отменяем grid */
+    grid-template-columns: none;
     margin: 0;
-    pointer-events: none; /* не мешаем свайпу/кнопкам */
+    pointer-events: none;
   }
 
   #promptModalStats .kv-card {
@@ -1880,5 +2152,544 @@ body {
     background-repeat: no-repeat;
     background-size: contain;
     flex-shrink: 0;
+  }
+}
+
+/* Desktop — две кнопки в линию */
+@media (min-width: 768px) {
+  .pb-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Добавьте эти стили в конец файла styles.css */
+
+/* ===============================
+   Mobile Compact Layout
+   Уменьшение вертикальных отступов
+   =============================== */
+
+@media (max-width: 768px) {
+  /* Еще более компактный хедер */
+  .header {
+    padding: 8px 12px;
+  }
+  
+  .header-content {
+    gap: 8px 12px;
+  }
+  
+  .logo-icon {
+    width: 30px;
+    height: 30px;
+    font-size: 13px;
+    border-radius: 8px;
+  }
+  
+  .logo span {
+    font-size: 16px;
+  }
+  
+  .mobile-search-row {
+    gap: 8px;
+  }
+  
+  .search-input {
+    height: 40px;
+    padding: 10px 12px 10px 36px;
+    font-size: 14px;
+    border-radius: 12px;
+  }
+  
+  .search-icon {
+    left: 12px;
+    width: 16px;
+    height: 16px;
+  }
+  
+  .mobile-generate-btn {
+    height: 40px;
+    padding: 0 12px;
+    font-size: 13px;
+    min-width: 85px;
+    border-radius: 12px;
+  }
+  
+  .mobile-generate-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .user-menu {
+    gap: 6px;
+  }
+  
+  .icon-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+  
+  .icon-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+  
+  /* Уменьшаем отступы для баннера */
+  .hero-banner {
+    margin: 8px 12px 0;
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+  
+  .hero-title {
+    font-size: 20px;
+    margin-bottom: 8px;
+  }
+  
+  .hero-subtitle {
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+  
+  /* Основной контейнер с уменьшенными отступами */
+  .container {
+    padding: 16px 12px;
+  }
+  
+  /* Фильтры */
+  .filter-tabs {
+    margin-bottom: 16px;
+    gap: 8px;
+    padding-bottom: 4px;
+  }
+  
+  .filter-tab {
+    padding: 8px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+  }
+  
+  /* Статистика */
+  .stats-bar {
+    padding: 12px;
+    border-radius: 14px;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  
+  .stats-info {
+    font-size: 13px;
+  }
+  
+  .sort-select {
+    padding: 6px 12px;
+    border-radius: 10px;
+    font-size: 13px;
+  }
+  
+  /* Карточки */
+  .cards-grid {
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  
+  .prompt-card {
+    border-radius: 14px;
+  }
+  
+  .prompt-content {
+    padding: 12px;
+  }
+  
+  .prompt-title {
+    font-size: 15px;
+    margin-bottom: 4px;
+  }
+  
+  .prompt-description {
+    font-size: 12.5px;
+    margin-bottom: 6px;
+  }
+  
+  .prompt-meta {
+    margin-top: 4px;
+    padding-top: 6px;
+  }
+  
+  .prompt-stats {
+    font-size: 12px;
+    gap: 8px;
+  }
+  
+  .stat-item svg {
+    width: 12px;
+    height: 12px;
+  }
+  
+  .favorite-btn {
+    width: 28px;
+    height: 28px;
+    top: -1px;
+  }
+  
+  /* Секция рефералов */
+  .referral-section {
+    margin-top: 32px;
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+  
+  .referral-header {
+    margin-bottom: 20px;
+    gap: 12px;
+  }
+  
+  .referral-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+  }
+  
+  .referral-title {
+    font-size: 20px;
+  }
+  
+  .referral-subtitle {
+    font-size: 14px;
+    margin-top: 2px;
+  }
+  
+  .referral-stats {
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  
+  .referral-stat {
+    padding: 16px;
+    border-radius: 12px;
+  }
+  
+  .stat-value {
+    font-size: 24px;
+    margin-bottom: 4px;
+  }
+  
+  .stat-label {
+    font-size: 13px;
+  }
+  
+  .referral-link-section {
+    padding: 16px;
+    border-radius: 12px;
+  }
+  
+  .link-wrapper {
+    margin-bottom: 16px;
+  }
+  
+  .link-input {
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+  }
+  
+  .primary-btn {
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 13px;
+  }
+  
+  .referral-info {
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 13px;
+  }
+  
+  /* Модальные окна */
+  .modal-overlay {
+    padding: 8px;
+  }
+  
+  .modal {
+    border-radius: 16px;
+  }
+  
+  .modal-header {
+    padding: 14px 16px;
+  }
+  
+  .modal-body {
+    padding: 12px 16px;
+  }
+  
+  .modal-grid {
+    gap: 10px;
+  }
+  
+  .detail-side-under {
+    padding: 12px;
+    border-radius: 14px;
+  }
+  
+  .detail-actions {
+    margin-top: 10px;
+    padding-top: 10px;
+  }
+  
+  .detail-actions .primary-btn,
+  .detail-actions .secondary-btn {
+    height: 40px;
+    border-radius: 10px;
+    font-size: 13px;
+  }
+  
+  .prompt-textarea {
+    height: 240px;
+    max-height: 40vh;
+    border-radius: 14px;
+    padding: 12px;
+    font-size: 12.5px;
+  }
+  
+  .carousel-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+  }
+  
+  .carousel-counter {
+    bottom: 10px;
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+  
+  .kv {
+    gap: 6px;
+  }
+  
+  .kv-card {
+    padding: 10px;
+    border-radius: 12px;
+    height: 64px;
+  }
+  
+  .kv-card .k {
+    font-size: 11px;
+  }
+  
+  .kv-card .v {
+    font-size: 16px;
+  }
+}
+
+/* Для очень маленьких экранов */
+@media (max-width: 480px) {
+  .header {
+    padding: 6px 10px;
+  }
+  
+  .header-content {
+    gap: 6px 8px;
+  }
+  
+  .logo-icon {
+    width: 28px;
+    height: 28px;
+  }
+  
+  .mobile-search-row {
+    gap: 6px;
+  }
+  
+  .search-input {
+    height: 38px;
+    font-size: 13px;
+  }
+  
+  .mobile-generate-btn {
+    height: 38px;
+    padding: 0 10px;
+    min-width: 75px;
+    font-size: 12px;
+  }
+  
+  .icon-btn {
+    width: 34px;
+    height: 34px;
+  }
+  
+  .hero-banner {
+    margin: 6px 10px 0;
+    padding: 16px 14px;
+  }
+  
+  .hero-title {
+    font-size: 18px;
+  }
+  
+  .hero-subtitle {
+    font-size: 13px;
+    margin-bottom: 14px;
+  }
+  
+  .container {
+    padding: 14px 10px;
+  }
+  
+  .filter-tabs {
+    margin-bottom: 12px;
+  }
+  
+  .filter-tab {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  
+  .stats-bar {
+    padding: 10px;
+    margin-bottom: 16px;
+  }
+  
+  .sort-select {
+    height: 38px;
+  }
+  
+  .cards-grid {
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  
+  .prompt-card {
+    border-radius: 12px;
+  }
+  
+  .prompt-content {
+    padding: 10px;
+  }
+  
+  .prompt-title {
+    font-size: 14px;
+  }
+  
+  .prompt-description {
+    font-size: 12px;
+    margin-bottom: 4px;
+  }
+  
+  .prompt-meta {
+    margin-top: 4px;
+    padding-top: 4px;
+  }
+  
+  .prompt-stats {
+    font-size: 11px;
+    gap: 6px;
+  }
+  
+  .favorite-btn {
+    width: 26px;
+    height: 26px;
+  }
+  
+  .referral-section {
+    margin-top: 24px;
+    padding: 16px 14px;
+  }
+  
+  .referral-title {
+    font-size: 18px;
+  }
+  
+  .referral-subtitle {
+    font-size: 13px;
+  }
+  
+  .referral-stats {
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  
+  .referral-stat {
+    padding: 14px;
+  }
+  
+  .stat-value {
+    font-size: 22px;
+  }
+  
+  .stat-label {
+    font-size: 12px;
+  }
+  
+  /* Еще более компактные модальные окна */
+  .modal-header {
+    padding: 12px 14px;
+  }
+  
+  .modal-body {
+    padding: 10px 12px;
+  }
+  
+  .modal-title {
+    font-size: 15px;
+  }
+  
+  .modal-subtitle {
+    font-size: 12px;
+  }
+  
+  .prompt-textarea {
+    height: 200px;
+    font-size: 12px;
+    padding: 10px;
+  }
+  
+  .toast {
+    left: 10px;
+    right: 10px;
+    bottom: 10px;
+    padding: 12px 16px;
+    font-size: 13px;
+  }
+}
+
+/* Экстра компактная версия для очень старых или очень маленьких телефонов */
+@media (max-width: 360px) {
+  .logo span {
+    font-size: 14px;
+  }
+  
+  .mobile-generate-btn .btn-text {
+    display: none;
+  }
+  
+  .mobile-generate-btn {
+    min-width: 40px;
+    padding: 0;
+  }
+  
+  .hero-title {
+    font-size: 16px;
+  }
+  
+  .hero-subtitle {
+    font-size: 12px;
+  }
+  
+  .referral-title {
+    font-size: 16px;
+  }
+  
+  .referral-subtitle {
+    font-size: 12px;
+  }
+  
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .prompt-card {
+    margin: 0 4px;
   }
 }
