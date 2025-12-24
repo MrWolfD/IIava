@@ -2990,3 +2990,11 @@ body.modal-open {
 }
 
 }
+
+@media (max-width: 768px) {
+  .detail-side-under {
+    margin-top: -20px; /* Поднимаем на 20px */
+    position: relative;
+    z-index: 2;
+  }
+
