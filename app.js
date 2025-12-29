@@ -14,6 +14,9 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 // --- Telegram WebApp + Supabase Edge profile ---
 const TG_PROFILE_URL = "https://pfmirzmqncbwjztscwyo.supabase.co/functions/v1/tg_profile";
+const PROMPT_LIST_URL = "https://pfmirzmqncbwjztscwyo.supabase.co/functions/v1/prompt_list";
+const PROMPT_FAVORITE_URL = "https://pfmirzmqncbwjztscwyo.supabase.co/functions/v1/prompt_favorite";
+const PROMPT_COPY_URL = "https://pfmirzmqncbwjztscwyo.supabase.co/functions/v1/prompt_copy";
 let runtimeProfile = null;
 
 function initTelegramWebApp() {
@@ -103,13 +106,81 @@ async function fetchProfileFromEdge() {
 function getProfileOrDemo() {
   return runtimeProfile || demoData.profile;
 }
+
+// --- Prompts from Supabase Edge ---
+function normalizePromptListPayload(payload) {
+  if (payload == null) return [];
+  if (typeof payload === 'string') {
+    try { payload = JSON.parse(payload); } catch { return []; }
+  }
+  const items = payload.items ?? payload.data ?? payload;
+  return Array.isArray(items) ? items : [];
+}
+
+function mapPromptFromDb(p) {
+  const categories = Array.isArray(p.categories) ? p.categories : (p.category ? [p.category] : []);
+  const category = categories.length ? String(categories[0]) : 'без категории';
+
+  return {
+    id: Number(p.id),
+    title: String(p.title ?? ''),
+    description: String(p.description ?? ''), // если нет поля — будет пусто
+    promptText: String(p.prompt_text ?? p.promptText ?? ''),
+    image: String(p.image_url ?? p.image ?? ''),
+    category,
+    tags: categories,
+
+    // UI-цифры: пока показываем "ваши" показатели (по пользователю)
+    copies: Number(p.copies_by_user ?? p.copies ?? 0),
+    favorites: Number(p.favorites_count ?? p.favorites ?? 0),
+
+    // персональные флаги
+    is_favorite: Boolean(p.is_favorite ?? false)
+  };
+}
+
+async function callEdge(url, payload) {
+  const initData = getTelegramInitData();
+  if (!initData) {
+    // вне Telegram WebApp — просто не делаем запросы
+    return { ok: false, message: "No initData" };
+  }
+
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
+    },
+    body: JSON.stringify({ initData, ...payload })
+  });
+
+  const text = await res.text();
+  if (!res.ok) {
+    throw new Error(`Edge HTTP ${res.status}: ${text}`);
+  }
+
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new Error("Edge returned non-JSON");
+  }
+}
+
+async function fetchPromptsFromEdge() {
+  const json = await callEdge(PROMPT_LIST_URL, { page: 1, limit: 200 });
+  const items = normalizePromptListPayload(json);
+  return items.map(mapPromptFromDb);
+}
+// --- /Prompts from Supabase Edge ---
+
 // --- /Telegram WebApp + profile ---
 
 // Состояние приложения
 const state = {
   prompts: [],
   filteredPrompts: [],
-  favorites: JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY)) || [],
+  favorites: [],
   activeCategories: new Set(['все']),
   searchQuery: '',
   sortBy: 'default',
@@ -131,20 +202,7 @@ const demoData = {
     referralLink: "https://t.me/neurophoto_bot?start=ref_224753455"
   },
 
-  prompts: [
-    { id: 1, title: "Профессиональный портрет в студии", description: "Светлая студия, профессиональное освещение, детализированная проработка кожи", promptText: "Сгенерируй фото: Профессиональный портрет в студии. Студийное освещение, мягкий key light, аккуратные тени, реалистичная кожа, высокая детализация, 8K.", image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2", category: "портрет", copies: 324, favorites: 45, tags: ["студия", "портрет", "профессиональный"] },
-    { id: 2, title: "Модная фотосессия в городе", description: "Уличная съемка, современная одежда, городской бэкграунд", promptText: "Сгенерируй фото: Модная фотосессия в городе. Стрит-фото, кинематографичный свет, городской фон, высокий контраст, реалистичная текстура одежды, 8K.", image: "https://images.unsplash.com/photo-1488161628813-04466f872be2", category: "фотосессия", copies: 289, favorites: 38, tags: ["улица", "мода", "город"] },
-    { id: 3, title: "Креативный портрет с цветами", description: "Арт-съемка, цветочные элементы, необычные ракурсы", promptText: "Сгенерируй фото: Креативный портрет с цветами. Арт-портрет, цветочные акценты, мягкий свет, пастельные тона, высокая детализация, 8K.", image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1", category: "портрет", copies: 256, favorites: 52, tags: ["арт", "цветы", "креатив"] },
-    { id: 4, title: "Профессиональное фото для резюме", description: "Деловой стиль, нейтральный фон, уверенный образ", promptText: "Сгенерируй фото: Профессиональное фото для резюме. Деловой стиль, нейтральный фон, мягкий свет, естественные цвета, clean look, 8K.", image: "https://images.unsplash.com/photo-1580489944761-15a19d654956", category: "бизнес", copies: 412, favorites: 67, tags: ["резюме", "деловой", "портрет"] },
-    { id: 5, title: "Семейная фотосессия на природе", description: "Теплая атмосфера, естественные эмоции, природный фон", promptText: "Сгенерируй фото: Семейная фотосессия на природе. Естественное освещение, теплые тона, счастливые лица, гармоничная композиция, 8K.", image: "https://images.unsplash.com/photo-1511988617509-a57c8a288659", category: "семья", copies: 189, favorites: 42, tags: ["семья", "природа", "эмоции"] },
-    { id: 6, title: "Спортивная съемка в зале", description: "Динамика, энергия, современный спортзал", promptText: "Сгенерируй фото: Спортивная съемка в зале. Динамичное освещение, активная поза, детализация мышц, современный зал, 8K.", image: "https://images.unsplash.com/photo-1511988617509-a57c8a288659", category: "спорт", copies: 156, favorites: 31, tags: ["спорт", "динамика", "энергия"] },
-    { id: 7, title: "Романтическая фотосессия в парке", description: "Нежные чувства, красивые локации, мягкий свет", promptText: "Сгенерируй фото: Романтическая фотосессия в парке. Мягкий свет, нежные цвета, красивые фоны, искренние эмоции, 8K.", image: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc", category: "романтика", copies: 234, favorites: 58, tags: ["романтика", "парк", "нежность"] },
-    { id: 8, title: "Корпоративный портрет в офисе", description: "Профессиональная атмосфера, современный офис, деловой стиль", promptText: "Сгенерируй фото: Корпоративный портрет в офисе. Естественный свет от окон, современный офисный интерьер, деловая одежда, уверенная поза, 8K.", image: "https://images.unsplash.com/photo-1560250097-0b93528c311a", category: "бизнес", copies: 198, favorites: 36, tags: ["офис", "корпоративный", "деловой"] },
-    { id: 9, title: "Фотосессия с животными", description: "Игривость, натуральность, домашние питомцы", promptText: "Сгенерируй фото: Фотосессия с животными. Естественное освещение, игривая атмосфера, внимание к деталям шерсти, гармоничное взаимодействие, 8K.", image: "https://images.unsplash.com/photo-1543852786-1cf6624b9987", category: "животные", copies: 167, favorites: 49, tags: ["животные", "игривость", "натуральность"] },
-    { id: 10, title: "Архитектурный портрет на фоне зданий", description: "Урбанистический стиль, геометрия, контрасты", promptText: "Сгенерируй фото: Архитектурный портрет на фоне зданий. Резкие тени, геометричные фоны, контрастное освещение, стильная одежда, 8K.", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d", category: "архитектура", copies: 145, favorites: 27, tags: ["архитектура", "урбан", "геометрия"] },
-    { id: 11, title: "Детская фотосессия в студии", description: "Нежность, естественность, мягкие тона", promptText: "Сгенерируй фото: Детская фотосессия в студии. Мягкий студийный свет, пастельные тона, нежные выражения, акцент на глазах, 8K.", image: "https://images.unsplash.com/photo-1511988617509-a57c8a288659", category: "дети", copies: 278, favorites: 63, tags: ["дети", "студия", "нежность"] },
-    { id: 12, title: "Вечерняя фотосессия с огнями", description: "Волшебная атмосфера, огни, глубина кадра", promptText: "Сгенерируй фото: Вечерняя фотосессия с огнями. Сумеречное освещение, огни гирлянд, глубина резкости, романтическое настроение, 8K.", image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622", category: "вечер", copies: 201, favorites: 44, tags: ["вечер", "огни", "атмосфера"] }
-  ]
+  prompts: []
 };
 
 // Кэш DOM элементов
@@ -288,11 +346,11 @@ function renderPrompts() {
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
             </button>
-            <button class="action-btn favorite-btn ${state.favorites.includes(prompt.id) ? 'active' : ''}"
+            <button class="action-btn favorite-btn ${prompt.is_favorite ? 'active' : ''}"
                     data-id="${prompt.id}"
-                    title="${state.favorites.includes(prompt.id) ? 'Удалить из избранного' : 'Добавить в избранное'}">
+                    title="${prompt.is_favorite ? 'Удалить из избранного' : 'Добавить в избранное'}">
               <svg width="18" height="18" viewBox="0 0 24 24"
-                   fill="${state.favorites.includes(prompt.id) ? 'currentColor' : 'none'}"
+                   fill="${prompt.is_favorite ? 'currentColor' : 'none'}"
                    stroke="currentColor" stroke-width="2">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
               </svg>
@@ -308,7 +366,7 @@ function updatePrompts() {
   let filtered = [...state.prompts];
 
   if (state.showOnlyFavorites) {
-    filtered = filtered.filter(p => state.favorites.includes(p.id));
+    filtered = filtered.filter(p => p.is_favorite);
   }
 
   const categories = new Set(state.activeCategories);
@@ -354,7 +412,7 @@ function updateStats() {
     statsInfo.innerHTML = `<strong id="visibleCount">${state.filteredPrompts.length}</strong> из <strong id="totalCount">${state.prompts.length}</strong>`;
   }
 
-  const favCount = state.favorites.length;
+  const favCount = state.prompts.filter(p => p.is_favorite).length;
 
   dom.favoritesBtn.innerHTML = `
     <svg width="20" height="20" viewBox="0 0 24 24"
@@ -384,8 +442,8 @@ function isMobileView() {
 }
 
 function initPrompts() {
-  state.prompts = demoData.prompts;
-  state.filteredPrompts = [...demoData.prompts];
+  state.prompts = [];
+  state.filteredPrompts = [];
   state.isLoading = false;
 }
 
@@ -449,7 +507,7 @@ const modal = {
     document.getElementById('promptModalCopies').textContent = prompt.copies || 0;
     document.getElementById('promptModalFavorites').textContent = prompt.favorites || 0;
     document.getElementById('promptModalFavBtn').textContent =
-      state.favorites.includes(prompt.id) ? '❤ В избранном' : '❤ В избранное';
+      prompt.is_favorite ? '❤ В избранном' : '❤ В избранное';
     document.getElementById('promptCarouselCounter').textContent = `${this.currentIndex + 1} / ${list.length}`;
 
     syncPromptModalStatsPlacement();
@@ -522,20 +580,36 @@ const modal = {
 };
 
 // Вспомогательные функции
-function toggleFavorite(promptId) {
-  const index = state.favorites.indexOf(promptId);
 
-  if (index > -1) {
-    state.favorites.splice(index, 1);
-    utils.showToast('Удалено из избранного');
-  } else {
-    state.favorites.push(promptId);
-    utils.showToast('Добавлено в избранное');
+async function toggleFavorite(promptId) {
+  const prompt = state.prompts.find(p => p.id === promptId);
+  if (!prompt) return;
+
+  // оптимистично переключаем UI
+  const next = !prompt.is_favorite;
+  prompt.is_favorite = next;
+  if (state.filteredPrompts) {
+    const p2 = state.filteredPrompts.find(p => p.id === promptId);
+    if (p2) p2.is_favorite = next;
   }
 
-  localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(state.favorites));
+  try {
+    await callEdge(PROMPT_FAVORITE_URL, { prompt_id: promptId, is_favorite: next });
+    utils.showToast(next ? 'Добавлено в избранное' : 'Удалено из избранного');
+  } catch (e) {
+    // откат
+    prompt.is_favorite = !next;
+    if (state.filteredPrompts) {
+      const p2 = state.filteredPrompts.find(p => p.id === promptId);
+      if (p2) p2.is_favorite = !next;
+    }
+    console.warn("prompt_favorite failed:", e);
+    utils.showToast('Не удалось обновить избранное', 'error');
+  }
+
   updatePrompts();
 }
+
 
 function toggleCurrentFavorite() {
   const list = state.filteredPrompts.length ? state.filteredPrompts : state.prompts;
@@ -545,7 +619,7 @@ function toggleCurrentFavorite() {
 
   toggleFavorite(prompt.id);
   document.getElementById('promptModalFavBtn').textContent =
-    state.favorites.includes(prompt.id) ? '❤ В избранном' : '❤ В избранное';
+    prompt.is_favorite ? '❤ В избранном' : '❤ В избранное';
 }
 
 async function copyCurrentPrompt() {
@@ -558,7 +632,17 @@ async function copyCurrentPrompt() {
 
   if (success) {
     utils.showToast('Промпт скопирован. Вставьте его в чат с ботом');
-    prompt.copies = (prompt.copies || 0) + 1;
+
+    try {
+      await callEdge(PROMPT_COPY_URL, { prompt_id: prompt.id });
+      // копирование учитываем 1 раз на пользователя
+      prompt.copies = Math.max(Number(prompt.copies || 0), 1);
+    } catch (e) {
+      console.warn("prompt_copy failed:", e);
+      // не блокируем UX, но сообщаем
+      utils.showToast('Не удалось записать копирование', 'error');
+    }
+
     updatePrompts();
   } else {
     utils.showToast('Ошибка копирования', 'error');
@@ -574,7 +658,15 @@ async function copyPromptDirectly(promptId) {
 
   if (success) {
     utils.showToast('Промпт скопирован. Вставьте его в чат с ботом');
-    prompt.copies = (prompt.copies || 0) + 1;
+
+    try {
+      await callEdge(PROMPT_COPY_URL, { prompt_id: prompt.id });
+      prompt.copies = Math.max(Number(prompt.copies || 0), 1);
+    } catch (e) {
+      console.warn("prompt_copy failed:", e);
+      utils.showToast('Не удалось записать копирование', 'error');
+    }
+
     updatePrompts();
   } else {
     utils.showToast('Ошибка копирования', 'error');
@@ -931,6 +1023,17 @@ function initApp() {
       runtimeProfile = await fetchProfileFromEdge();
     } catch (e) {
       runtimeProfile = null;
+    }
+
+    // Fetch prompts from Edge Function (only inside Telegram WebApp)
+    try {
+      const serverPrompts = await fetchPromptsFromEdge();
+      state.prompts = serverPrompts;
+      state.filteredPrompts = [...serverPrompts];
+    } catch (e) {
+      console.warn('Failed to load prompts:', e);
+      state.prompts = [];
+      state.filteredPrompts = [];
     }
 
     dom.loadingState.style.display = 'none';
