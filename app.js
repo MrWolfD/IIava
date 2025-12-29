@@ -12,11 +12,14 @@ const CONFIG = {
 // ✅ Public anon key — можно хранить на фронте
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBmbWlyem1xbmNid2p6dHNjd3lvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ0MTAwMDksImV4cCI6MjA3OTk4NjAwOX0.D4UwlJ9lEfQZHc31max3xvoLzFIWCmuB9KNKnFkOY68";
 
+
+const BASE_FN = "https://pfmirzmqncbwjztscwyo.functions.supabase.co/functions/v1";
+const TG_PROFILE_URL = `${BASE_FN}/tg_profile`;
+const PROMPT_LIST_URL = `${BASE_FN}/prompt-list`;
+const PROMPT_FAVORITE_URL = `${BASE_FN}/prompt-favorite`;
+const PROMPT_COPY_URL = `${BASE_FN}/prompt_copy`;
 // --- Telegram WebApp + Supabase Edge profile ---
-const TG_PROFILE_URL = "https://pfmirzmqncbwjztscwyo.supabase.co/functions/v1/tg_profile";
-const PROMPT_LIST_URL = "https://pfmirzmqncbwjztscwyo.functions.supabase.co/functions/v1/prompt-list";
-const PROMPT_FAVORITE_URL = "https://pfmirzmqncbwjztscwyo.functions.supabase.co/functions/v1/prompt-favorite";
-const PROMPT_COPY_URL = "https://pfmirzmqncbwjztscwyo.functions.supabase.co/functions/v1/prompt_copy";
+
 let runtimeProfile = null;
 
 function initTelegramWebApp() {
@@ -605,7 +608,6 @@ async function copyCurrentPrompt() {
     utils.showToast('Промпт скопирован. Вставьте его в чат с ботом');
     try {
       await callEdge(PROMPT_COPY_URL, { prompt_id: prompt.id });
-      // copies_by_user = 1 max
       prompt.copies = Math.max(Number(prompt.copies || 0), 1);
       const el = document.getElementById('promptModalCopies');
       if (el) el.textContent = String(prompt.copies || 0);
