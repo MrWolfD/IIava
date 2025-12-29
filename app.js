@@ -163,6 +163,80 @@ async function fetchPromptsFromEdge() {
   const items = normalizePromptListPayload(json);
   return items.map(mapPromptFromDb);
 }
+
+
+async function loadPrompts() {
+  try {
+    state.isLoading = true;
+    // показываем лоадер, если есть
+    if (dom.loadingState) dom.loadingState.style.display = 'flex';
+
+    const prompts = await fetchPromptsFromEdge();
+
+    // ✅ Никаких дефолтных промптов: если пусто — показываем пустое состояние
+    state.prompts = Array.isArray(prompts) ? prompts : [];
+    state.filteredPrompts = [];
+    state.isLoading = false;
+
+    // перерисовка категорий и списка
+    renderCategories();
+    updatePrompts();
+    updateStats();
+  } catch (e) {
+    console.error("loadPrompts failed:", e);
+    state.prompts = [];
+    state.filteredPrompts = [];
+    state.isLoading = false;
+    renderCategories();
+    updatePrompts();
+    updateStats();
+  } finally {
+    if (dom.loadingState) dom.loadingState.style.display = 'none';
+  }
+}
+
+function findPromptById(promptId) {
+  return state.prompts.find(p => Number(p.id) === Number(promptId)) || null;
+}
+
+async function toggleFavoriteEdge(promptId) {
+  const prompt = findPromptById(promptId);
+  if (!prompt) return;
+
+  try {
+    const res = await callEdge(PROMPT_FAVORITE_URL, { prompt_id: Number(promptId) });
+
+    // Ожидаемые варианты ответа:
+    // { ok:true, is_favorite:true/false, favorites_count:number }
+    // { ok:true, favorite:true/false, favorites:number }
+    const isFav = Boolean(res?.is_favorite ?? res?.favorite ?? res?.active ?? !prompt.is_favorite);
+    const favCount = res?.favorites_count ?? res?.favorites ?? null;
+
+    prompt.is_favorite = isFav;
+    if (typeof favCount === 'number') {
+      prompt.favorites = favCount;
+    } else {
+      // если бэк не вернул число — обновляем локально (минимально корректно)
+      prompt.favorites = Math.max(0, Number(prompt.favorites || 0) + (isFav ? 1 : -1));
+    }
+
+    // синхроним модалку, если открыта
+    const favBtn = document.getElementById('promptModalFavBtn');
+    const favCounter = document.getElementById('promptModalFavorites');
+    if (dom.promptModalOverlay?.classList.contains('show')) {
+      if (favBtn) favBtn.textContent = isFav ? '❤ В избранном' : '❤ В избранное';
+      if (favCounter) favCounter.textContent = String(prompt.favorites || 0);
+    }
+
+    updatePrompts();
+    utils.showToast(isFav ? 'Добавлено в избранное' : 'Удалено из избранного');
+  } catch (e) {
+    console.warn("prompt-favorite failed:", e);
+    utils.showToast('Не удалось обновить избранное', 'error');
+  }
+}
+
+
 // --- /Prompts from Supabase Edge ---
 
 // --- /Telegram WebApp + profile ---
@@ -436,7 +510,8 @@ function isMobileView() {
 function initPrompts() {
   state.prompts = [];
   state.filteredPrompts = [];
-  state.isLoading = false;
+  state.isLoading = true;
+  if (dom.loadingState) dom.loadingState.style.display = 'flex';
 }
 
 function syncPromptModalStatsPlacement() {
@@ -573,30 +648,19 @@ const modal = {
 
 // Вспомогательные функции
 function toggleFavorite(promptId) {
-  const index = state.favorites.indexOf(promptId);
-
-  if (index > -1) {
-    state.favorites.splice(index, 1);
-    utils.showToast('Удалено из избранного');
-  } else {
-    state.favorites.push(promptId);
-    utils.showToast('Добавлено в избранное');
-  }
-
-  localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(state.favorites));
-  updatePrompts();
+  // legacy wrapper (keep calls working)
+  toggleFavoriteEdge(promptId);
 }
 
-function toggleCurrentFavorite() {
+
+async function toggleCurrentFavorite() {
   const list = state.filteredPrompts.length ? state.filteredPrompts : state.prompts;
   const prompt = list[modal.currentIndex];
-
   if (!prompt) return;
 
-  toggleFavorite(prompt.id);
-  document.getElementById('promptModalFavBtn').textContent =
-    prompt.is_favorite ? '❤ В избранном' : '❤ В избранное';
+  await toggleFavoriteEdge(prompt.id);
 }
+
 
 async function copyCurrentPrompt() {
   const list = state.filteredPrompts.length ? state.filteredPrompts : state.prompts;
@@ -609,7 +673,7 @@ async function copyCurrentPrompt() {
     utils.showToast('Промпт скопирован. Вставьте его в чат с ботом');
     try {
       await callEdge(PROMPT_COPY_URL, { prompt_id: prompt.id });
-      prompt.copies = Math.max(Number(prompt.copies || 0), 1);
+      prompt.copies = Math.max(Number(prompt.copies || 0) + 1, 1);
       const el = document.getElementById('promptModalCopies');
       if (el) el.textContent = String(prompt.copies || 0);
     } catch (e) {
@@ -632,7 +696,7 @@ async function copyPromptDirectly(promptId) {
     utils.showToast('Промпт скопирован. Вставьте его в чат с ботом');
     try {
       await callEdge(PROMPT_COPY_URL, { prompt_id: prompt.id });
-      prompt.copies = Math.max(Number(prompt.copies || 0), 1);
+      prompt.copies = Math.max(Number(prompt.copies || 0) + 1, 1);
     } catch (e) {
       console.warn("prompt_copy failed:", e);
     }
@@ -984,29 +1048,24 @@ function initPromptBuilder() {
 function initApp() {
   setTimeout(async () => {
     initTelegramWebApp();
-
     initPrompts();
 
-    // Fetch profile from Edge Function (only works inside Telegram WebApp)
+    // 1) СНАЧАЛА грузим промпты (иначе список пустой и запросов нет)
+    await loadPrompts();
+
+    // 2) Профиль — опционально (только в Telegram WebApp)
     try {
       runtimeProfile = await fetchProfileFromEdge();
     } catch (e) {
       runtimeProfile = null;
     }
 
-    dom.loadingState.style.display = 'none';
-    renderCategories();
-    updatePrompts();
-    updateStats();
-
-    // Fill referral / bonus preview on home screen
+    // Домашние цифры из профиля (если нет — будет демо, как и раньше)
     const p = getProfileOrDemo();
-
     dom.invitedCount.textContent = p.referrals_count ?? p.referrals ?? 0;
     dom.earnedBonuses.textContent = p.bonus_total ?? p.earnedBonuses ?? 0;
     dom.bonusBalance.textContent = p.bonus_balance ?? p.bonusBalance ?? 0;
 
-    // ref_code — приоритетный источник ссылки
     const refCode = (p.ref_code ?? '').toString().trim();
     dom.referralLink.value = refCode
       ? `https://t.me/neurokartochkaBot?start=ref_${refCode}`
@@ -1015,6 +1074,7 @@ function initApp() {
     initPromptBuilder();
   }, CONFIG.INIT_DELAY);
 }
+
 
 // Настройка обработчиков событий
 function setupEventListeners() {
@@ -1054,7 +1114,7 @@ function setupEventListeners() {
   });
 
   // Карточки промптов с обработкой кнопок копирования и избранного
-  dom.cardsGrid.addEventListener('click', (e) => {
+  dom.cardsGrid.addEventListener('click', async (e) => {
     // Обработка кнопки копирования
     const copyBtn = e.target.closest('.copy-btn');
     if (copyBtn) {
@@ -1067,7 +1127,7 @@ function setupEventListeners() {
     const favBtn = e.target.closest('.favorite-btn');
     if (favBtn) {
       const id = parseInt(favBtn.dataset.id);
-      toggleFavorite(id);
+      await toggleFavoriteEdge(id);
       return;
     }
 
