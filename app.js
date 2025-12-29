@@ -14,8 +14,8 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 // --- Telegram WebApp + Supabase Edge profile ---
 const TG_PROFILE_URL = "https://pfmirzmqncbwjztscwyo.supabase.co/functions/v1/tg_profile";
-const PROMPT_LIST_URL = "https://pfmirzmqncbwjztscwyo.supabase.co/functions/v1/prompt-list";
-const PROMPT_FAVORITE_URL = "https://pfmirzmqncbwjztscwyo.supabase.co/functions/v1/prompt-favorite";
+const PROMPT_LIST_URL = "https://pfmirzmqncbwjztscwyo.supabase.co/functions/v1/prompt_list";
+const PROMPT_FAVORITE_URL = "https://pfmirzmqncbwjztscwyo.supabase.co/functions/v1/prompt_favorite";
 const PROMPT_COPY_URL = "https://pfmirzmqncbwjztscwyo.supabase.co/functions/v1/prompt_copy";
 let runtimeProfile = null;
 
@@ -587,25 +587,53 @@ async function toggleFavorite(promptId) {
 
   const next = !prompt.is_favorite;
 
-  // оптимистично
+  // --- optimistic UI update ---
   prompt.is_favorite = next;
+  prompt.favorites = Math.max(0, Number(prompt.favorites || 0) + (next ? 1 : -1));
+
   const p2 = state.filteredPrompts?.find(p => p.id === promptId);
-  if (p2) p2.is_favorite = next;
+  if (p2) {
+    p2.is_favorite = next;
+    p2.favorites = prompt.favorites;
+  }
 
   try {
     const action = next ? "add" : "remove";
     await callEdge(PROMPT_FAVORITE_URL, { prompt_id: promptId, action });
-    utils.showToast(next ? "Добавлено в избранное" : "Удалено из избранного");
+    utils.showToast(next ? 'Добавлено в избранное' : 'Удалено из избранного');
   } catch (e) {
-    // откат
+    // rollback
     prompt.is_favorite = !next;
-    if (p2) p2.is_favorite = !next;
+    prompt.favorites = Math.max(0, Number(prompt.favorites || 0) + (next ? -1 : 1));
+
+    if (p2) {
+      p2.is_favorite = prompt.is_favorite;
+      p2.favorites = prompt.favorites;
+    }
+
     console.warn("prompt_favorite failed:", e);
-    utils.showToast("Не удалось обновить избранное", "error");
+    utils.showToast('Не удалось обновить избранное', 'error');
   }
 
   updatePrompts();
-  updateStats(); // на всякий, чтобы счетчик точно обновился
+  updateStats();
+}
+
+  try {
+    await callEdge(PROMPT_FAVORITE_URL, { prompt_id: promptId, is_favorite: next });
+    utils.showToast(next ? 'Добавлено в избранное' : 'Удалено из избранного');
+  } catch (e) {
+    // откат
+    prompt.is_favorite = !next;
+    if (state.filteredPrompts) {
+      const p2 = state.filteredPrompts.find(p => p.id === promptId);
+      if (p2) p2.is_favorite = !next;
+    }
+    console.warn("prompt_favorite failed:", e);
+    utils.showToast('Не удалось обновить избранное', 'error');
+  }
+
+  updatePrompts();
 }
 
 
