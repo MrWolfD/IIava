@@ -608,6 +608,8 @@ body {
   display: none;
 }
 .modal-overlay.show { display: flex; }
+
+/* ОБЩИЕ СТИЛИ МОДАЛЬНЫХ ОКОН */
 .modal {
   width: min(920px, 100%);
   max-height: min(90vh, 900px);
@@ -750,7 +752,7 @@ body {
   box-shadow: 0 0 0 3px rgba(139,92,246,.1);
 }
 
-/* KV Cards */
+/* KV Cards (общие) */
 .kv { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 0; }
 .kv-card {
   background: rgba(17,24,39,.02);
@@ -769,6 +771,298 @@ body {
 .modal-note { margin-top: 10px; color: var(--text-tertiary); font-size: 13px; line-height: 1.5; }
 .section-title { margin-top: 18px; font-size: 14px; font-weight: 800; color: var(--text-primary); }
 .divider { height: 1px; background: var(--border-light); margin: 16px 0; }
+
+/* === МОДАЛЬНОЕ ОКНО ПРОФИЛЯ (УЛУЧШЕННЫЙ ДИЗАЙН) === */
+#profileModalOverlay .modal {
+  width: min(680px, 96vw);
+  max-height: min(85vh, 800px);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+#profileModalOverlay .modal-header {
+  background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+  color: white;
+  padding: 24px 28px;
+  border-bottom: none;
+  position: relative;
+  overflow: hidden;
+}
+
+#profileModalOverlay .modal-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 80% 20%, rgba(255,255,255,0.15) 0%, transparent 50%);
+}
+
+#profileModalOverlay .modal-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 4px;
+}
+
+#profileModalOverlay .modal-subtitle {
+  font-size: 14px;
+  opacity: 0.9;
+  color: rgba(255,255,255,0.9);
+  margin-top: 0;
+}
+
+#profileModalOverlay .modal-close {
+  background: rgba(255,255,255,0.15);
+  border: 1.5px solid rgba(255,255,255,0.3);
+  color: white;
+  backdrop-filter: blur(10px);
+  z-index: 2;
+}
+
+#profileModalOverlay .modal-close:hover {
+  background: rgba(255,255,255,0.25);
+  border-color: rgba(255,255,255,0.5);
+}
+
+#profileModalOverlay .modal-body {
+  padding: 28px;
+  background: var(--bg-secondary);
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Группы статистики с карточками */
+#profileModalOverlay .section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border-light);
+}
+
+#profileModalOverlay .section-title::before {
+  content: '';
+  width: 4px;
+  height: 16px;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+/* Обновленная сетка статистики */
+#profileModalOverlay .kv {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin: 0;
+}
+
+#profileModalOverlay .kv-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 20px;
+  height: auto;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+#profileModalOverlay .kv-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #8B5CF6, #A78BFA);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+#profileModalOverlay .kv-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(139, 92, 246, 0.12);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+#profileModalOverlay .kv-card:hover::before {
+  opacity: 1;
+}
+
+#profileModalOverlay .kv-card .k {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+
+#profileModalOverlay .kv-card .v {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#profileModalOverlay .kv-card.highlight {
+  background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+  border: none;
+  color: white;
+}
+
+#profileModalOverlay .kv-card.highlight .k,
+#profileModalOverlay .kv-card.highlight .v {
+  color: white;
+}
+
+#profileModalOverlay .kv-card.highlight::before {
+  display: none;
+}
+
+/* Широкая карточка для успешности генераций */
+#profileModalOverlay .kv-card.wide {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%);
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  padding: 24px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 20px;
+}
+
+#profileModalOverlay .kv-card.wide .v {
+  font-size: 32px;
+  color: var(--accent);
+  font-weight: 800;
+}
+
+#profileModalOverlay .kv-card.wide .modal-note {
+  font-size: 13px;
+  color: var(--text-secondary);
+  grid-column: 1 / -1;
+  margin-top: 10px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(139, 92, 246, 0.1);
+}
+
+/* Секция с реферальной ссылкой */
+#profileModalOverlay .referral-section {
+  background: linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%);
+  border-radius: 20px;
+  padding: 24px;
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  margin-top: 8px;
+}
+
+#profileModalOverlay .link-wrapper {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+#profileModalOverlay .link-input {
+  flex: 1;
+  padding: 14px 18px;
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-family: 'Monaco', 'Menlo', monospace;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+#profileModalOverlay .primary-btn {
+  padding: 14px 22px;
+  background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  min-width: 160px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+#profileModalOverlay .primary-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(139, 92, 246, 0.25);
+}
+
+#profileModalOverlay .referral-info {
+  margin-top: 16px;
+  padding: 14px 18px;
+  background: rgba(139, 92, 246, 0.08);
+  border-radius: 12px;
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+#profileModalOverlay .referral-info strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* Делитель с иконкой */
+#profileModalOverlay .divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border-light), transparent);
+  margin: 8px 0;
+  position: relative;
+}
+
+#profileModalOverlay .divider::before {
+  content: '●';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--bg-secondary);
+  color: var(--text-tertiary);
+  font-size: 10px;
+  padding: 0 10px;
+}
+
+/* Анимация появления карточек */
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#profileModalOverlay .kv-card {
+  animation: slideUpFade 0.4s ease-out backwards;
+}
+
+#profileModalOverlay .kv-card:nth-child(1) { animation-delay: 0.1s; }
+#profileModalOverlay .kv-card:nth-child(2) { animation-delay: 0.15s; }
+#profileModalOverlay .kv-card:nth-child(3) { animation-delay: 0.2s; }
+#profileModalOverlay .kv-card:nth-child(4) { animation-delay: 0.25s; }
 
 /* === TOAST === */
 .toast {
@@ -1458,7 +1752,63 @@ body {
     border-radius: 12px; 
   }
   
-  /* Modals */
+  /* Модальное окно профиля на мобильных */
+  #profileModalOverlay .modal-header {
+    padding: 20px 24px;
+  }
+  
+  #profileModalOverlay .modal-title {
+    font-size: 20px;
+  }
+  
+  #profileModalOverlay .modal-body {
+    padding: 20px;
+    gap: 20px;
+  }
+  
+  #profileModalOverlay .kv {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  
+  #profileModalOverlay .kv-card {
+    padding: 16px;
+    min-height: 90px;
+  }
+  
+  #profileModalOverlay .kv-card .k {
+    font-size: 12px;
+    margin-bottom: 8px;
+  }
+  
+  #profileModalOverlay .kv-card .v {
+    font-size: 20px;
+  }
+  
+  #profileModalOverlay .kv-card.wide {
+    grid-template-columns: 1fr;
+    padding: 20px;
+  }
+  
+  #profileModalOverlay .kv-card.wide .v {
+    font-size: 28px;
+    justify-content: center;
+  }
+  
+  #profileModalOverlay .link-wrapper {
+    flex-direction: column;
+  }
+  
+  #profileModalOverlay .primary-btn {
+    width: 100%;
+    min-width: auto;
+  }
+  
+  #profileModalOverlay .referral-section {
+    padding: 20px;
+  }
+  
+  /* Modals (общие) */
   .modal-overlay { padding: 8px; }
   .modal { 
     width: min(560px, 96vw); 
@@ -1650,6 +2000,33 @@ body {
     padding: 5px 10px;
   }
   
+  /* Модальное окно профиля на очень маленьких экранах */
+  #profileModalOverlay .kv {
+    grid-template-columns: 1fr;
+  }
+  
+  #profileModalOverlay .modal-header {
+    padding: 18px 20px;
+  }
+  
+  #profileModalOverlay .modal-body {
+    padding: 16px;
+    gap: 16px;
+  }
+  
+  #profileModalOverlay .kv-card {
+    padding: 14px;
+    min-height: 85px;
+  }
+  
+  #profileModalOverlay .kv-card .v {
+    font-size: 18px;
+  }
+  
+  #profileModalOverlay .kv-card.wide .v {
+    font-size: 24px;
+  }
+  
   /* Еще меньше расстояния между карточками */
   .cards-grid {
     gap: 6px;
@@ -1790,7 +2167,6 @@ body {
     min-width: 110px;
     padding: 4px 8px;
   }
-
 }
 
 /* === UTILITY CLASSES === */
