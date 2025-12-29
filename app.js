@@ -200,6 +200,7 @@ const dom = {
   totalCount: document.getElementById('totalCount'),
   sortSelect: document.getElementById('sortSelect'),
   loadingState: document.getElementById('loadingState'),
+  appContainer: document.getElementById('appContainer'),
   toast: document.getElementById('toast'),
   searchInput: document.getElementById('searchInput'),
   favoritesBtn: document.getElementById('favoritesBtn'),
@@ -604,7 +605,10 @@ async function copyCurrentPrompt() {
     utils.showToast('Промпт скопирован. Вставьте его в чат с ботом');
     try {
       await callEdge(PROMPT_COPY_URL, { prompt_id: prompt.id });
+      // copies_by_user = 1 max
       prompt.copies = Math.max(Number(prompt.copies || 0), 1);
+      const el = document.getElementById('promptModalCopies');
+      if (el) el.textContent = String(prompt.copies || 0);
     } catch (e) {
       console.warn("prompt_copy failed:", e);
     }
