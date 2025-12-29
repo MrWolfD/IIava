@@ -669,56 +669,41 @@ async function copyCurrentPrompt() {
 
   const success = await utils.copyToClipboard(prompt.promptText || prompt.title);
 
-  if (!success) {
-    utils.showToast('Ошибка копирования', 'error');
-    return;
-  }
-
-  utils.showToast('Промпт скопирован. Вставьте его в чат с ботом');
-
-  try {
-    const res = await callEdge(PROMPT_COPY_URL, { prompt_id: prompt.id });
-
-    // ✅ увеличиваем ТОЛЬКО если БД реально приняла запись
-    if (res?.counted === true) {
-      prompt.copies = Number(prompt.copies || 0) + 1;
-
+  if (success) {
+    utils.showToast('Промпт скопирован. Вставьте его в чат с ботом');
+    try {
+      await callEdge(PROMPT_COPY_URL, { prompt_id: prompt.id });
+      prompt.copies = Math.max(Number(prompt.copies || 0) + 1, 1);
       const el = document.getElementById('promptModalCopies');
-      if (el) el.textContent = String(prompt.copies);
+      if (el) el.textContent = String(prompt.copies || 0);
+    } catch (e) {
+      console.warn("prompt_copy failed:", e);
     }
-  } catch (e) {
-    console.warn("prompt_copy failed:", e);
+    updatePrompts();
+  } else {
+    utils.showToast('Ошибка копирования', 'error');
   }
-
-  updatePrompts();
 }
 
 // НОВАЯ ФУНКЦИЯ: Копирование промпта напрямую из карточки
 async function copyPromptDirectly(promptId) {
-  const prompt = state.prompts.find(p => Number(p.id) === Number(promptId));
+  const prompt = state.prompts.find(p => p.id === promptId);
   if (!prompt) return;
 
   const success = await utils.copyToClipboard(prompt.promptText || prompt.title);
 
-  if (!success) {
-    utils.showToast('Ошибка копирования', 'error');
-    return;
-  }
-
-  utils.showToast('Промпт скопирован. Вставьте его в чат с ботом');
-
-  try {
-    const res = await callEdge(PROMPT_COPY_URL, { prompt_id: prompt.id });
-
-    // ✅ увеличиваем ТОЛЬКО если вставка была первой
-    if (res?.counted === true) {
-      prompt.copies = Number(prompt.copies || 0) + 1;
+  if (success) {
+    utils.showToast('Промпт скопирован. Вставьте его в чат с ботом');
+    try {
+      await callEdge(PROMPT_COPY_URL, { prompt_id: prompt.id });
+      prompt.copies = Math.max(Number(prompt.copies || 0) + 1, 1);
+    } catch (e) {
+      console.warn("prompt_copy failed:", e);
     }
-  } catch (e) {
-    console.warn("prompt_copy failed:", e);
+    updatePrompts();
+  } else {
+    utils.showToast('Ошибка копирования', 'error');
   }
-
-  updatePrompts();
 }
 
 function setupCarouselSwipe() {
