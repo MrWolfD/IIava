@@ -285,6 +285,12 @@ function renderPrompts() {
             </div>
           </div>
           <div class="prompt-actions">
+            <button class="action-btn copy-btn" data-id="${prompt.id}" title="Копировать промпт">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+            </button>
             <button class="action-btn favorite-btn ${state.favorites.includes(prompt.id) ? 'active' : ''}"
                     data-id="${prompt.id}"
                     title="${state.favorites.includes(prompt.id) ? 'Удалить из избранного' : 'Добавить в избранное'}">
@@ -547,6 +553,22 @@ async function copyCurrentPrompt() {
   const list = state.filteredPrompts.length ? state.filteredPrompts : state.prompts;
   const prompt = list[modal.currentIndex];
 
+  if (!prompt) return;
+
+  const success = await utils.copyToClipboard(prompt.promptText || prompt.title);
+
+  if (success) {
+    utils.showToast('Промпт скопирован. Вставьте его в чат с ботом');
+    prompt.copies = (prompt.copies || 0) + 1;
+    updatePrompts();
+  } else {
+    utils.showToast('Ошибка копирования', 'error');
+  }
+}
+
+// НОВАЯ ФУНКЦИЯ: Копирование промпта напрямую из карточки
+async function copyPromptDirectly(promptId) {
+  const prompt = state.prompts.find(p => p.id === promptId);
   if (!prompt) return;
 
   const success = await utils.copyToClipboard(prompt.promptText || prompt.title);
@@ -971,8 +993,17 @@ function setupEventListeners() {
     );
   });
 
-  // Карточки промптов
+  // Карточки промптов с обработкой кнопок копирования и избранного
   dom.cardsGrid.addEventListener('click', (e) => {
+    // Обработка кнопки копирования
+    const copyBtn = e.target.closest('.copy-btn');
+    if (copyBtn) {
+      const id = parseInt(copyBtn.dataset.id);
+      copyPromptDirectly(id);
+      return;
+    }
+
+    // Обработка кнопки избранного
     const favBtn = e.target.closest('.favorite-btn');
     if (favBtn) {
       const id = parseInt(favBtn.dataset.id);
@@ -980,6 +1011,7 @@ function setupEventListeners() {
       return;
     }
 
+    // Обработка клика по карточке
     const card = e.target.closest('.prompt-card');
     if (card) {
       const id = parseInt(card.dataset.id);
