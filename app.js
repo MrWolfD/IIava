@@ -110,41 +110,34 @@ function getProfileOrDemo() {
 // --- Prompts from Supabase Edge ---
 function normalizePromptListPayload(payload) {
   if (payload == null) return [];
-  if (typeof payload === 'string') {
-    try { payload = JSON.parse(payload); } catch { return []; }
-  }
   const items = payload.items ?? payload.data ?? payload;
   return Array.isArray(items) ? items : [];
 }
 
 function mapPromptFromDb(p) {
-  const categories = Array.isArray(p.categories) ? p.categories : (p.category ? [p.category] : []);
+  const categories = Array.isArray(p.categories) ? p.categories : [];
   const category = categories.length ? String(categories[0]) : 'без категории';
 
   return {
     id: Number(p.id),
     title: String(p.title ?? ''),
-    description: String(p.description ?? ''), // если нет поля — будет пусто
-    promptText: String(p.prompt_text ?? p.promptText ?? ''),
-    image: String(p.image_url ?? p.image ?? ''),
+    description: String(p.description ?? ''),
+    promptText: String(p.prompt_text ?? ''),
+    image: String(p.image_url ?? ''),
     category,
     tags: categories,
 
-    // UI-цифры: пока показываем "ваши" показатели (по пользователю)
-    copies: Number(p.copies_by_user ?? p.copies ?? 0),
-    favorites: Number(p.favorites_count ?? p.favorites ?? 0),
+    // UI-цифры (пока персональные, если сервер не даёт общие)
+    copies: Number(p.copies_by_user ?? 0),
+    favorites: Number(p.favorites_count ?? 0),
 
-    // персональные флаги
-    is_favorite: Boolean(p.is_favorite ?? false)
+    is_favorite: Boolean(p.is_favorite ?? false),
   };
 }
 
 async function callEdge(url, payload) {
   const initData = getTelegramInitData();
-  if (!initData) {
-    // вне Telegram WebApp — просто не делаем запросы
-    return { ok: false, message: "No initData" };
-  }
+  if (!initData) return { ok: false, message: "No initData" };
 
   const res = await fetch(url, {
     method: "POST",
@@ -152,19 +145,13 @@ async function callEdge(url, payload) {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
     },
-    body: JSON.stringify({ initData, ...payload })
+    body: JSON.stringify({ initData, ...payload }),
   });
 
   const text = await res.text();
-  if (!res.ok) {
-    throw new Error(`Edge HTTP ${res.status}: ${text}`);
-  }
+  if (!res.ok) throw new Error(`Edge HTTP ${res.status}: ${text}`);
 
-  try {
-    return JSON.parse(text);
-  } catch {
-    throw new Error("Edge returned non-JSON");
-  }
+  try { return JSON.parse(text); } catch { throw new Error("Edge returned non-JSON"); }
 }
 
 async function fetchPromptsFromEdge() {
@@ -580,36 +567,20 @@ const modal = {
 };
 
 // Вспомогательные функции
+function toggleFavorite(promptId) {
+  const index = state.favorites.indexOf(promptId);
 
-async function toggleFavorite(promptId) {
-  const prompt = state.prompts.find(p => p.id === promptId);
-  if (!prompt) return;
-
-  // оптимистично переключаем UI
-  const next = !prompt.is_favorite;
-  prompt.is_favorite = next;
-  if (state.filteredPrompts) {
-    const p2 = state.filteredPrompts.find(p => p.id === promptId);
-    if (p2) p2.is_favorite = next;
+  if (index > -1) {
+    state.favorites.splice(index, 1);
+    utils.showToast('Удалено из избранного');
+  } else {
+    state.favorites.push(promptId);
+    utils.showToast('Добавлено в избранное');
   }
 
-  try {
-    await callEdge(PROMPT_FAVORITE_URL, { prompt_id: promptId, is_favorite: next });
-    utils.showToast(next ? 'Добавлено в избранное' : 'Удалено из избранного');
-  } catch (e) {
-    // откат
-    prompt.is_favorite = !next;
-    if (state.filteredPrompts) {
-      const p2 = state.filteredPrompts.find(p => p.id === promptId);
-      if (p2) p2.is_favorite = !next;
-    }
-    console.warn("prompt_favorite failed:", e);
-    utils.showToast('Не удалось обновить избранное', 'error');
-  }
-
+  localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(state.favorites));
   updatePrompts();
 }
-
 
 function toggleCurrentFavorite() {
   const list = state.filteredPrompts.length ? state.filteredPrompts : state.prompts;
@@ -625,24 +596,18 @@ function toggleCurrentFavorite() {
 async function copyCurrentPrompt() {
   const list = state.filteredPrompts.length ? state.filteredPrompts : state.prompts;
   const prompt = list[modal.currentIndex];
-
   if (!prompt) return;
 
   const success = await utils.copyToClipboard(prompt.promptText || prompt.title);
 
   if (success) {
     utils.showToast('Промпт скопирован. Вставьте его в чат с ботом');
-
     try {
       await callEdge(PROMPT_COPY_URL, { prompt_id: prompt.id });
-      // копирование учитываем 1 раз на пользователя
       prompt.copies = Math.max(Number(prompt.copies || 0), 1);
     } catch (e) {
       console.warn("prompt_copy failed:", e);
-      // не блокируем UX, но сообщаем
-      utils.showToast('Не удалось записать копирование', 'error');
     }
-
     updatePrompts();
   } else {
     utils.showToast('Ошибка копирования', 'error');
@@ -658,15 +623,12 @@ async function copyPromptDirectly(promptId) {
 
   if (success) {
     utils.showToast('Промпт скопирован. Вставьте его в чат с ботом');
-
     try {
       await callEdge(PROMPT_COPY_URL, { prompt_id: prompt.id });
       prompt.copies = Math.max(Number(prompt.copies || 0), 1);
     } catch (e) {
       console.warn("prompt_copy failed:", e);
-      utils.showToast('Не удалось записать копирование', 'error');
     }
-
     updatePrompts();
   } else {
     utils.showToast('Ошибка копирования', 'error');
@@ -1023,17 +985,6 @@ function initApp() {
       runtimeProfile = await fetchProfileFromEdge();
     } catch (e) {
       runtimeProfile = null;
-    }
-
-    // Fetch prompts from Edge Function (only inside Telegram WebApp)
-    try {
-      const serverPrompts = await fetchPromptsFromEdge();
-      state.prompts = serverPrompts;
-      state.filteredPrompts = [...serverPrompts];
-    } catch (e) {
-      console.warn('Failed to load prompts:', e);
-      state.prompts = [];
-      state.filteredPrompts = [];
     }
 
     dom.loadingState.style.display = 'none';
