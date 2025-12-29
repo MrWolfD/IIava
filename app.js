@@ -14,9 +14,9 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 // --- Telegram WebApp + Supabase Edge profile ---
 const TG_PROFILE_URL = "https://pfmirzmqncbwjztscwyo.supabase.co/functions/v1/tg_profile";
-const PROMPT_LIST_URL = "https://pfmirzmqncbwjztscwyo.supabase.co/functions/v1/prompt-list";
-const PROMPT_FAVORITE_URL = "https://pfmirzmqncbwjztscwyo.supabase.co/functions/v1/prompt-favorite";
-const PROMPT_COPY_URL = "https://pfmirzmqncbwjztscwyo.supabase.co/functions/v1/prompt_copy";
+const PROMPT_LIST_URL = "https://pfmirzmqncbwjztscwyo.functions.supabase.co/functions/v1/prompt-list";
+const PROMPT_FAVORITE_URL = "https://pfmirzmqncbwjztscwyo.functions.supabase.co/functions/v1/prompt-favorite";
+const PROMPT_COPY_URL = "https://pfmirzmqncbwjztscwyo.functions.supabase.co/functions/v1/prompt_copy";
 let runtimeProfile = null;
 
 function initTelegramWebApp() {
