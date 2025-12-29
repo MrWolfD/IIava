@@ -221,7 +221,7 @@ async function toggleFavoriteEdge(promptId) {
     }
 
     // синхроним модалку, если открыта
-    const favBtn = document.getElementById('promptModalFavoriteBtn');
+    const favBtn = document.getElementById('promptModalFavBtn');
     const favCounter = document.getElementById('promptModalFavorites');
     if (dom.promptModalOverlay?.classList.contains('show')) {
       if (favBtn) favBtn.textContent = isFav ? '❤ В избранном' : '❤ В избранное';
@@ -273,8 +273,6 @@ const demoData = {
 // Кэш DOM элементов
 const dom = {
   cardsGrid: document.getElementById('cardsGrid'),
-  // alias: часть кода обращается к promptGrid
-  promptGrid: document.getElementById('cardsGrid'),
   filterTabs: document.getElementById('filterTabs'),
   visibleCount: document.getElementById('visibleCount'),
   totalCount: document.getElementById('totalCount'),
@@ -294,11 +292,6 @@ const dom = {
   copyReferralBtn: document.getElementById('copyReferralBtn'),
   profileBtn: document.getElementById('profileBtn'),
   promptModalOverlay: document.getElementById('promptModalOverlay'),
-  promptModal: document.getElementById('promptModal'),
-  promptModalCopies: document.getElementById('promptModalCopies'),
-  promptModalFavorites: document.getElementById('promptModalFavorites'),
-  promptModalCopyBtn: document.getElementById('promptModalCopyBtn'),
-  promptModalFavoriteBtn: document.getElementById('promptModalFavoriteBtn'),
   profileModalOverlay: document.getElementById('profileModalOverlay'),
   constructorModalOverlay: document.getElementById('constructorModalOverlay'),
   tutorialModalOverlay: document.getElementById('tutorialModalOverlay'),
@@ -403,13 +396,13 @@ function renderPrompts() {
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
-              <span class="stat-value" data-stat="copies">${prompt.copies}</span>
+              <span data-stat="copies">${prompt.copies}</span>
             </div>
             <div class="stat-item" title="Добавлено в избранное">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
               </svg>
-              <span class="stat-value" data-stat="favorites">${prompt.favorites}</span>
+              <span data-stat="favorites">${prompt.favorites}</span>
             </div>
           </div>
           <div class="prompt-actions">
@@ -570,9 +563,9 @@ function updatePromptUI(promptId) {
   // модалка (если открыта именно эта карточка)
   const openId = dom.modal?.dataset?.id;
   if (openId && String(openId) === id) {
-    if (dom.promptModalCopies) dom.promptModalCopies.textContent = String(prompt.copies || 0);
-    if (dom.promptModalFavorites) dom.promptModalFavorites.textContent = String(prompt.favorites || 0);
-    if (dom.promptModalFavoriteBtn) dom.promptModalFavoriteBtn.classList.toggle('active', !!prompt.is_favorite);
+    if (dom.modalCopiesCount) dom.modalCopiesCount.textContent = String(prompt.copies || 0);
+    if (dom.modalFavCount) dom.modalFavCount.textContent = String(prompt.favorites || 0);
+    if (dom.modalFavBtn) dom.modalFavBtn.classList.toggle('active', !!prompt.is_favorite);
   }
 }
 
@@ -691,7 +684,7 @@ const modal = {
     document.getElementById('promptModalText').value = prompt.promptText || '';
     document.getElementById('promptModalCopies').textContent = prompt.copies || 0;
     document.getElementById('promptModalFavorites').textContent = prompt.favorites || 0;
-    document.getElementById('promptModalFavoriteBtn').textContent =
+    document.getElementById('promptModalFavBtn').textContent =
       prompt.is_favorite ? '❤ В избранном' : '❤ В избранное';
     document.getElementById('promptCarouselCounter').textContent = `${this.currentIndex + 1} / ${list.length}`;
 
@@ -1301,7 +1294,7 @@ function setupEventListeners() {
   document.getElementById('promptPrevBtn').addEventListener('click', () => modal.prev());
   document.getElementById('promptNextBtn').addEventListener('click', () => modal.next());
   document.getElementById('promptModalCopyBtn').addEventListener('click', copyCurrentPrompt);
-  document.getElementById('promptModalFavoriteBtn').addEventListener('click', toggleCurrentFavorite);
+  document.getElementById('promptModalFavBtn').addEventListener('click', toggleCurrentFavorite);
 
   // Конструктор - обе кнопки (десктопная и мобильная)
   dom.generateBtn.addEventListener('click', () => {
