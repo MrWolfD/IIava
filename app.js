@@ -132,18 +132,18 @@ const demoData = {
   },
 
   prompts: [
-    { id: 1, title: "Профессиональный портрет в студии", description: "Светлая студия, профессиональное освещение, детализированная проработка кожи", promptText: "Сгенерируй фото: Профессиональный портрет в студии. Студийное освещение, мягкий key light, аккуратные тени, реалистичная кожа, высокая детализация, 8K.", image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2", category: "портрет", copies: 324, favorites: 45, tags: ["студия", "портрет", "профессиональный"], isPremium: true },
-    { id: 2, title: "Модная фотосессия в городе", description: "Уличная съемка, современная одежда, городской бэкграунд", promptText: "Сгенерируй фото: Модная фотосессия в городе. Стрит-фото, кинематографичный свет, городской фон, высокий контраст, реалистичная текстура одежды, 8K.", image: "https://images.unsplash.com/photo-1488161628813-04466f872be2", category: "фотосессия", copies: 289, favorites: 38, tags: ["улица", "мода", "город"], isPremium: false },
-    { id: 3, title: "Креативный портрет с цветами", description: "Арт-съемка, цветочные элементы, необычные ракурсы", promptText: "Сгенерируй фото: Креативный портрет с цветами. Арт-портрет, цветочные акценты, мягкий свет, пастельные тона, высокая детализация, 8K.", image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1", category: "портрет", copies: 256, favorites: 52, tags: ["арт", "цветы", "креатив"], isPremium: false },
-    { id: 4, title: "Профессиональное фото для резюме", description: "Деловой стиль, нейтральный фон, уверенный образ", promptText: "Сгенерируй фото: Профессиональное фото для резюме. Деловой стиль, нейтральный фон, мягкий свет, естественные цвета, clean look, 8K.", image: "https://images.unsplash.com/photo-1580489944761-15a19d654956", category: "бизнес", copies: 412, favorites: 67, tags: ["резюме", "деловой", "портрет"], isPremium: true },
-    { id: 5, title: "Семейная фотосессия на природе", description: "Теплая атмосфера, естественные эмоции, природный фон", promptText: "Сгенерируй фото: Семейная фотосессия на природе. Естественное освещение, теплые тона, счастливые лица, гармоничная композиция, 8K.", image: "https://images.unsplash.com/photo-1511988617509-a57c8a288659", category: "семья", copies: 189, favorites: 42, tags: ["семья", "природа", "эмоции"], isPremium: false },
-    { id: 6, title: "Спортивная съемка в зале", description: "Динамика, энергия, современный спортзал", promptText: "Сгенерируй фото: Спортивная съемка в зале. Динамичное освещение, активная поза, детализация мышц, современный зал, 8K.", image: "https://images.unsplash.com/photo-1511988617509-a57c8a288659", category: "спорт", copies: 156, favorites: 31, tags: ["спорт", "динамика", "энергия"], isPremium: false },
-    { id: 7, title: "Романтическая фотосессия в парке", description: "Нежные чувства, красивые локации, мягкий свет", promptText: "Сгенерируй фото: Романтическая фотосессия в парке. Мягкий свет, нежные цвета, красивые фоны, искренние эмоции, 8K.", image: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc", category: "романтика", copies: 234, favorites: 58, tags: ["романтика", "парк", "нежность"], isPremium: true },
-    { id: 8, title: "Корпоративный портрет в офисе", description: "Профессиональная атмосфера, современный офис, деловой стиль", promptText: "Сгенерируй фото: Корпоративный портрет в офисе. Естественный свет от окон, современный офисный интерьер, деловая одежда, уверенная поза, 8K.", image: "https://images.unsplash.com/photo-1560250097-0b93528c311a", category: "бизнес", copies: 198, favorites: 36, tags: ["офис", "корпоративный", "деловой"], isPremium: false },
-    { id: 9, title: "Фотосессия с животными", description: "Игривость, натуральность, домашние питомцы", promptText: "Сгенерируй фото: Фотосессия с животными. Естественное освещение, игривая атмосфера, внимание к деталям шерсти, гармоничное взаимодействие, 8K.", image: "https://images.unsplash.com/photo-1543852786-1cf6624b9987", category: "животные", copies: 167, favorites: 49, tags: ["животные", "игривость", "натуральность"], isPremium: false },
-    { id: 10, title: "Архитектурный портрет на фоне зданий", description: "Урбанистический стиль, геометрия, контрасты", promptText: "Сгенерируй фото: Архитектурный портрет на фоне зданий. Резкие тени, геометричные фоны, контрастное освещение, стильная одежда, 8K.", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d", category: "архитектура", copies: 145, favorites: 27, tags: ["архитектура", "урбан", "геометрия"], isPremium: true },
-    { id: 11, title: "Детская фотосессия в студии", description: "Нежность, естественность, мягкие тона", promptText: "Сгенерируй фото: Детская фотосессия в студии. Мягкий студийный свет, пастельные тона, нежные выражения, акцент на глазах, 8K.", image: "https://images.unsplash.com/photo-1511988617509-a57c8a288659", category: "дети", copies: 278, favorites: 63, tags: ["дети", "студия", "нежность"], isPremium: false },
-    { id: 12, title: "Вечерняя фотосессия с огнями", description: "Волшебная атмосфера, огни, глубина кадра", promptText: "Сгенерируй фото: Вечерняя фотосессия с огнями. Сумеречное освещение, огни гирлянд, глубина резкости, романтическое настроение, 8K.", image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622", category: "вечер", copies: 201, favorites: 44, tags: ["вечер", "огни", "атмосфера"], isPremium: true }
+    { id: 1, title: "Профессиональный портрет в студии", description: "Светлая студия, профессиональное освещение, детализированная проработка кожи", promptText: "Сгенерируй фото: Профессиональный портрет в студии. Студийное освещение, мягкий key light, аккуратные тени, реалистичная кожа, высокая детализация, 8K.", image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2", category: "портрет", copies: 324, favorites: 45, tags: ["студия", "портрет", "профессиональный"] },
+    { id: 2, title: "Модная фотосессия в городе", description: "Уличная съемка, современная одежда, городской бэкграунд", promptText: "Сгенерируй фото: Модная фотосессия в городе. Стрит-фото, кинематографичный свет, городской фон, высокий контраст, реалистичная текстура одежды, 8K.", image: "https://images.unsplash.com/photo-1488161628813-04466f872be2", category: "фотосессия", copies: 289, favorites: 38, tags: ["улица", "мода", "город"] },
+    { id: 3, title: "Креативный портрет с цветами", description: "Арт-съемка, цветочные элементы, необычные ракурсы", promptText: "Сгенерируй фото: Креативный портрет с цветами. Арт-портрет, цветочные акценты, мягкий свет, пастельные тона, высокая детализация, 8K.", image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1", category: "портрет", copies: 256, favorites: 52, tags: ["арт", "цветы", "креатив"] },
+    { id: 4, title: "Профессиональное фото для резюме", description: "Деловой стиль, нейтральный фон, уверенный образ", promptText: "Сгенерируй фото: Профессиональное фото для резюме. Деловой стиль, нейтральный фон, мягкий свет, естественные цвета, clean look, 8K.", image: "https://images.unsplash.com/photo-1580489944761-15a19d654956", category: "бизнес", copies: 412, favorites: 67, tags: ["резюме", "деловой", "портрет"] },
+    { id: 5, title: "Семейная фотосессия на природе", description: "Теплая атмосфера, естественные эмоции, природный фон", promptText: "Сгенерируй фото: Семейная фотосессия на природе. Естественное освещение, теплые тона, счастливые лица, гармоничная композиция, 8K.", image: "https://images.unsplash.com/photo-1511988617509-a57c8a288659", category: "семья", copies: 189, favorites: 42, tags: ["семья", "природа", "эмоции"] },
+    { id: 6, title: "Спортивная съемка в зале", description: "Динамика, энергия, современный спортзал", promptText: "Сгенерируй фото: Спортивная съемка в зале. Динамичное освещение, активная поза, детализация мышц, современный зал, 8K.", image: "https://images.unsplash.com/photo-1511988617509-a57c8a288659", category: "спорт", copies: 156, favorites: 31, tags: ["спорт", "динамика", "энергия"] },
+    { id: 7, title: "Романтическая фотосессия в парке", description: "Нежные чувства, красивые локации, мягкий свет", promptText: "Сгенерируй фото: Романтическая фотосессия в парке. Мягкий свет, нежные цвета, красивые фоны, искренние эмоции, 8K.", image: "https://images.unsplash.com/photo-1511285560929-80b456fea0bc", category: "романтика", copies: 234, favorites: 58, tags: ["романтика", "парк", "нежность"] },
+    { id: 8, title: "Корпоративный портрет в офисе", description: "Профессиональная атмосфера, современный офис, деловой стиль", promptText: "Сгенерируй фото: Корпоративный портрет в офисе. Естественный свет от окон, современный офисный интерьер, деловая одежда, уверенная поза, 8K.", image: "https://images.unsplash.com/photo-1560250097-0b93528c311a", category: "бизнес", copies: 198, favorites: 36, tags: ["офис", "корпоративный", "деловой"] },
+    { id: 9, title: "Фотосессия с животными", description: "Игривость, натуральность, домашние питомцы", promptText: "Сгенерируй фото: Фотосессия с животными. Естественное освещение, игривая атмосфера, внимание к деталям шерсти, гармоничное взаимодействие, 8K.", image: "https://images.unsplash.com/photo-1543852786-1cf6624b9987", category: "животные", copies: 167, favorites: 49, tags: ["животные", "игривость", "натуральность"] },
+    { id: 10, title: "Архитектурный портрет на фоне зданий", description: "Урбанистический стиль, геометрия, контрасты", promptText: "Сгенерируй фото: Архитектурный портрет на фоне зданий. Резкие тени, геометричные фоны, контрастное освещение, стильная одежда, 8K.", image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d", category: "архитектура", copies: 145, favorites: 27, tags: ["архитектура", "урбан", "геометрия"] },
+    { id: 11, title: "Детская фотосессия в студии", description: "Нежность, естественность, мягкие тона", promptText: "Сгенерируй фото: Детская фотосессия в студии. Мягкий студийный свет, пастельные тона, нежные выражения, акцент на глазах, 8K.", image: "https://images.unsplash.com/photo-1511988617509-a57c8a288659", category: "дети", copies: 278, favorites: 63, tags: ["дети", "студия", "нежность"] },
+    { id: 12, title: "Вечерняя фотосессия с огнями", description: "Волшебная атмосфера, огни, глубина кадра", promptText: "Сгенерируй фото: Вечерняя фотосессия с огнями. Сумеречное освещение, огни гирлянд, глубина резкости, романтическое настроение, 8K.", image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622", category: "вечер", copies: 201, favorites: 44, tags: ["вечер", "огни", "атмосфера"] }
   ]
 };
 
@@ -259,15 +259,12 @@ function renderPrompts() {
 
   dom.cardsGrid.innerHTML = state.filteredPrompts.map(prompt => `
     <div class="prompt-card" data-id="${prompt.id}">
-      ${prompt.isPremium ? '<div class="prompt-badge">PREMIUM</div>' : ''}
       <img src="${prompt.image}"
            alt="${prompt.title}"
            class="prompt-image"
            loading="lazy"
            onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=&quot;http://www.w3.org/2000/svg&quot; width=&quot;300&quot; height=&quot;400&quot;><rect width=&quot;100%&quot; height=&quot;100%&quot; fill=&quot;%23f3f4f6&quot;/></svg>'">
       <div class="prompt-content">
-        <h3 class="prompt-title">${prompt.title}</h3>
-        <p class="prompt-description">${prompt.description}</p>
         <div class="prompt-meta">
           <div class="prompt-stats">
             <div class="stat-item" title="Копирований">
@@ -351,6 +348,11 @@ function updatePrompts() {
 function updateStats() {
   dom.visibleCount.textContent = state.filteredPrompts.length;
   dom.totalCount.textContent = state.prompts.length;
+  
+  const statsInfo = document.querySelector('.stats-info');
+  if (statsInfo) {
+    statsInfo.innerHTML = `<strong id="visibleCount">${state.filteredPrompts.length}</strong> из <strong id="totalCount">${state.prompts.length}</strong>`;
+  }
 
   const favCount = state.favorites.length;
 
@@ -437,10 +439,7 @@ const modal = {
     this.currentIndex = idx;
     const prompt = list[idx];
 
-    document.getElementById('promptModalTitle').textContent = prompt.title;
-    document.getElementById('promptModalSubtitle').textContent =
-      (prompt.category ? `Категория: ${prompt.category}` : '') +
-      (prompt.isPremium ? ' • PREMIUM' : '');
+    document.getElementById('promptModalSubtitle').textContent = prompt.category ? `Категория: ${prompt.category}` : '';
 
     const img = document.getElementById('promptModalImage');
     img.src = prompt.image;

@@ -31,7 +31,7 @@ body {
               var(--bg-secondary);
   color: var(--text-primary);
   min-height: 100vh;
-  padding-bottom: 100px;
+  padding-bottom: 84px;
 }
 
 /* === COMMON UTILITY STYLES === */
@@ -198,7 +198,7 @@ body {
 .filter-tabs {
   display: flex;
   gap: 12px;
-  margin-bottom: 32px;
+  margin-bottom: 24px;
   overflow-x: auto;
   padding-bottom: 8px;
 }
@@ -220,18 +220,22 @@ body {
 .filter-tab:hover { border-color: var(--accent); color: var(--accent); }
 .filter-tab.active { background: var(--accent-gradient); border-color: var(--accent); color: #fff; }
 
-/* Stats Bar */
 .stats-bar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24px;
-  padding: 20px;
+  margin-bottom: 20px;
+  padding: 16px 20px;
   background: var(--bg-secondary);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-light);
+  flex-wrap: nowrap; /* Добавляем для предотвращения переноса на мобильных */
 }
-.stats-info { font-size: 14px; color: var(--text-secondary); }
+.stats-info { 
+  font-size: 14px; 
+  color: var(--text-secondary);
+  white-space: nowrap; /* Добавляем чтобы текст не переносился */
+}
 .stats-info strong { color: var(--text-primary); }
 
 .sort-select {
@@ -242,13 +246,15 @@ body {
   color: var(--text-primary);
   font-size: 14px;
   cursor: pointer;
+  white-space: nowrap; /* Добавляем чтобы текст в селекте не переносился */
+  min-width: 180px; /* Фиксируем минимальную ширину */
 }
 
 /* === ADAPTIVE CARDS GRID === */
 .cards-grid {
   display: grid;
   gap: 16px;
-  margin-bottom: 48px;
+  margin-bottom: 32px;
   /* Мобильные: 2 колонки */
   grid-template-columns: repeat(2, 1fr);
 }
@@ -257,7 +263,7 @@ body {
 @media (max-width: 360px) {
   .cards-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+    gap: 8px;
   }
 }
 
@@ -265,7 +271,7 @@ body {
 @media (min-width: 480px) {
   .cards-grid {
     grid-template-columns: repeat(3, 1fr);
-    gap: 18px;
+    gap: 14px;
   }
 }
 
@@ -273,7 +279,7 @@ body {
 @media (min-width: 768px) {
   .cards-grid {
     grid-template-columns: repeat(4, 1fr);
-    gap: 20px;
+    gap: 18px;
   }
 }
 
@@ -281,7 +287,7 @@ body {
 @media (min-width: 1024px) {
   .cards-grid {
     grid-template-columns: repeat(5, 1fr);
-    gap: 22px;
+    gap: 20px;
   }
 }
 
@@ -289,7 +295,7 @@ body {
 @media (min-width: 1280px) {
   .cards-grid {
     grid-template-columns: repeat(5, 1fr);
-    gap: 24px;
+    gap: 22px;
   }
 }
 
@@ -346,12 +352,12 @@ body {
 
 .prompt-badge {
   position: absolute;
-  top: 16px; right: 16px;
-  padding: 6px 12px;
+  top: 12px; right: 12px;
+  padding: 5px 10px;
   background: rgba(255,255,255,.95);
   backdrop-filter: blur(10px);
   border-radius: 20px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   color: var(--accent);
   border: 1px solid rgba(139,92,246,.2);
@@ -360,29 +366,10 @@ body {
 
 /* Обновленный контейнер контента с фиксированной нижней частью */
 .prompt-content {
-  padding: 14px 18px;
+  padding: 0;
   flex: 1;
   display: flex;
   flex-direction: column;
-}
-
-.prompt-title {
-  font-size: 17px;
-  font-weight: 600;
-  margin-bottom: 6px;
-  line-height: 1.35;
-  color: var(--text-primary);
-}
-
-.prompt-description {
-  font-size: 13.5px;
-  color: var(--text-secondary);
-  margin-bottom: 12px;
-  line-height: 1.4;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  flex: 1;
 }
 
 /* ФИКСИРОВАННАЯ НИЖНЯЯ ЧАСТЬ С ТРЕМЯ ЭЛЕМЕНТАМИ */
@@ -390,37 +377,36 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: auto;
-  padding-top: 12px;
-  border-top: 1px solid var(--border-light);
+  padding: 12px 16px;
+  border-top: none;
   flex-shrink: 0;
 }
 
 .prompt-stats {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 13px;
+  gap: 8px;
+  font-size: 12px;
   color: var(--text-tertiary);
 }
 .stat-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 /* Контейнер для кнопок в правой части */
 .prompt-actions {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 /* Общие стили для кнопок действий */
 .action-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
   border: 1.5px solid var(--border);
   background: var(--bg-primary);
   color: var(--text-secondary);
@@ -474,48 +460,17 @@ body {
   .prompt-card {
     min-height: 380px;
   }
-  
-  .prompt-title {
-    font-size: 16px;
-    -webkit-line-clamp: 2;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  
-  .prompt-description {
-    -webkit-line-clamp: 3;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
 }
 
 @media (min-width: 1024px) {
   .prompt-card {
     min-height: 400px;
   }
-  
-  .prompt-title {
-    font-size: 17px;
-  }
-  
-  .prompt-description {
-    font-size: 14px;
-  }
 }
 
 @media (min-width: 1280px) {
   .prompt-card {
     min-height: 420px;
-  }
-  
-  .prompt-title {
-    font-size: 18px;
-  }
-  
-  .prompt-description {
-    font-size: 14.5px;
   }
 }
 
@@ -1292,23 +1247,23 @@ body {
   border-top: 1px solid var(--border);
 }
 
-/* === MOBILE STYLES === */
+/* === МОБИЛЬНЫЕ СТИЛИ С МИНИМАЛЬНЫМИ РАССТОЯНИЯМИ === */
 @media (max-width: 768px) {
-  body { padding-bottom: 84px; }
+  body { padding-bottom: 64px; }
   
   /* Header */
-  .header { padding: 14px 16px; }
+  .header { padding: 12px 14px; }
   .header-content {
     display: grid;
     grid-template-columns: auto 1fr auto;
     grid-template-rows: auto auto;
-    gap: 12px 16px;
+    gap: 10px 12px;
     align-items: center;
   }
   
-  .logo { grid-column: 1; grid-row: 1; font-size: 20px; gap: 10px; }
-  .logo-icon { width: 34px; height: 34px; font-size: 15px; border-radius: 9px; }
-  .logo span { font-size: 18px; }
+  .logo { grid-column: 1; grid-row: 1; font-size: 18px; gap: 8px; }
+  .logo-icon { width: 30px; height: 30px; font-size: 13px; border-radius: 8px; }
+  .logo span { font-size: 16px; }
   
   .desktop-generate-btn { display: none !important; }
   
@@ -1316,93 +1271,138 @@ body {
     display: flex;
     grid-column: 1 / -1;
     grid-row: 2;
-    gap: 10px;
+    gap: 8px;
     align-items: center;
     width: 100%;
   }
   
   .search-container { flex: 1; max-width: none; margin: 0; }
   .search-input {
-    padding: 12px 16px 12px 44px;
-    border-radius: 14px;
-    font-size: 15px;
-    height: 48px;
+    padding: 10px 14px 10px 40px;
+    border-radius: 12px;
+    font-size: 14px;
+    height: 44px;
   }
-  .search-icon { left: 16px; }
+  .search-icon { left: 14px; }
   
   .mobile-generate-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    padding: 0 16px;
-    height: 48px;
+    gap: 4px;
+    padding: 0 12px;
+    height: 44px;
     background: var(--accent-gradient);
     color: white;
     border: none;
-    border-radius: 14px;
+    border-radius: 12px;
     font-weight: 600;
-    font-size: 15px;
+    font-size: 14px;
     white-space: nowrap;
     flex-shrink: 0;
-    min-width: 100px;
+    min-width: 90px;
   }
   .mobile-generate-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35); }
   
-  .user-menu { grid-column: 3; grid-row: 1; display: flex; gap: 10px; justify-content: flex-end; }
-  .icon-btn { width: 40px; height: 40px; border-radius: 10px; }
+  .user-menu { grid-column: 3; grid-row: 1; display: flex; gap: 8px; justify-content: flex-end; }
+  .icon-btn { width: 36px; height: 36px; border-radius: 8px; }
   
   /* Hero */
   .hero-banner {
-    margin: 16px auto 0;
-    padding: 24px 18px;
-    border-radius: 20px;
-  }
-  .hero-title { font-size: 24px; }
-  .hero-subtitle { font-size: 15px; margin-bottom: 18px; }
-  
-  /* Main Content */
-  .container { padding: 20px 16px; }
-  .filter-tabs { margin-bottom: 18px; gap: 10px; padding-bottom: 6px; }
-  .filter-tab { padding: 10px 16px; border-radius: 16px; }
-  
-  .stats-bar {
-    padding: 14px;
+    margin: 12px auto 0;
+    padding: 20px 16px;
     border-radius: 16px;
-    gap: 12px;
-    flex-direction: column;
-    align-items: stretch;
   }
-  .sort-select { width: 100%; height: 44px; border-radius: 12px; }
+  .hero-title { font-size: 20px; }
+  .hero-subtitle { font-size: 14px; margin-bottom: 16px; }
   
-  /* Уменьшаем счетчики добавленного в избранное и копирования на мобильных */
-  .prompt-stats {
+  /* Main Content - минимальные отступы */
+  .container { padding: 16px 12px; }
+  .filter-tabs { 
+    margin-bottom: 12px; 
+    gap: 6px; 
+    padding-bottom: 4px;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .filter-tabs::-webkit-scrollbar { display: none; }
+  
+  .filter-tab { 
+    padding: 8px 12px; 
+    border-radius: 12px; 
+    font-size: 12px;
+    border-width: 1px;
+  }
+  
+ .stats-bar {
+    padding: 12px 14px;
+    border-radius: 14px;
+    gap: 12px; /* Уменьшаем отступ между элементами */
+    flex-direction: row; /* Всегда в строку */
+    align-items: center;
+    margin-bottom: 16px;
+    overflow: hidden; /* Скрываем переполнение */
+  }
+  
+  .stats-info { 
+    font-size: 13px;
+    flex-shrink: 0; /* Запрещаем сжатие */
+  }
+  
+  .sort-select { 
+    width: auto; 
+    height: 36px; 
+    border-radius: 10px;
+    font-size: 13px;
+    flex-shrink: 0; /* Запрещаем сжатие */
+    min-width: 140px; /* Минимальная ширина на мобильных */
+    padding: 6px 12px;
+  }
+  
+  /* Карточки с минимальными расстояниями */
+  .cards-grid {
     gap: 8px;
-    font-size: 11px;
+    margin-bottom: 24px;
+  }
+  
+  /* Обновление стилей для .prompt-content и .prompt-meta на мобильных */
+  .prompt-content { 
+    padding: 0; 
+  }
+  
+  .prompt-meta { 
+    padding: 8px 12px; 
+  }
+  
+  .prompt-stats {
+    gap: 6px;
+    font-size: 10px;
   }
   
   .prompt-stats .stat-item svg {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
   }
   
-  /* Улучшения для карточек на мобильных с 2 колонками */
-  .prompt-content { padding: 12px 14px 12px; }
-  .prompt-title { 
-    font-size: 16px; 
-    margin-bottom: 4px;
-    line-height: 1.3;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+  .prompt-actions { gap: 3px; }
+  .action-btn { 
+    width: 28px; 
+    height: 28px; 
+    border-radius: 6px;
   }
-  .prompt-description { 
-    font-size: 13px; 
-    margin-bottom: 8px;
+  .action-btn svg {
+    width: 14px;
+    height: 14px;
   }
-  .prompt-meta { margin-top: 8px; padding-top: 10px; }
-  .prompt-actions { gap: 4px; }
-  .action-btn { width: 30px; height: 30px; }
+  
+  /* Бейдж */
+  .prompt-badge {
+    top: 8px;
+    right: 8px;
+    padding: 4px 8px;
+    font-size: 10px;
+    border-radius: 16px;
+  }
   
   /* Скрываем тени при наведении на мобильных */
   .prompt-card:hover {
@@ -1416,79 +1416,118 @@ body {
   
   /* Referral */
   .referral-section {
-    padding: 24px 18px;
-    border-radius: 20px;
-    margin-top: 32px;
+    padding: 20px 16px;
+    border-radius: 16px;
+    margin-top: 24px;
   }
-  .referral-title { font-size: 22px; }
-  .referral-subtitle { font-size: 14px; margin-top: 2px; }
-  .referral-stats { gap: 12px; margin-bottom: 20px; }
-  .referral-stat { padding: 16px; border-radius: 12px; }
-  .stat-value { font-size: 24px; margin-bottom: 4px; }
-  .stat-label { font-size: 13px; }
-  .link-wrapper { flex-direction: column; }
-  .primary-btn { min-width: 0; width: 100%; }
-  .referral-link-section { padding: 16px; border-radius: 12px; }
+  .referral-header {
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .referral-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+  }
+  .referral-title { font-size: 20px; }
+  .referral-subtitle { font-size: 13px; margin-top: 2px; }
+  .referral-stats { 
+    gap: 10px; 
+    margin-bottom: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+  .referral-stat { 
+    padding: 14px; 
+    border-radius: 10px; 
+  }
+  .stat-value { font-size: 22px; margin-bottom: 4px; }
+  .stat-label { font-size: 12px; }
+  .link-wrapper { 
+    flex-direction: column; 
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .primary-btn { 
+    min-width: 0; 
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 14px;
+  }
+  .referral-link-section { 
+    padding: 16px; 
+    border-radius: 12px; 
+  }
   
   /* Modals */
-  .modal-overlay { padding: 12px; }
-  .modal { width: min(560px, 94vw); border-radius: 20px; }
+  .modal-overlay { padding: 8px; }
+  .modal { 
+    width: min(560px, 96vw); 
+    border-radius: 16px; 
+  }
   .modal-body { padding: 12px; }
   
   .modal-grid {
     grid-template-columns: 1fr;
     grid-template-areas: "left" "actions" "right";
-    gap: 12px;
+    gap: 10px;
   }
   
   .detail-side-under {
     padding: 12px;
-    border-radius: 16px;
+    border-radius: 14px;
     margin-top: 0;
     order: 2;
   }
   
-  .kv { display: flex; flex-direction: column; gap: 8px; }
-  .kv-card { padding: 10px; border-radius: 12px; height: 64px; }
-  .kv-card .k { font-size: 11px; }
-  .kv-card .v { font-size: 16px; }
+  .kv { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 6px; 
+  }
+  .kv-card { 
+    padding: 8px 10px; 
+    border-radius: 10px; 
+    height: 56px; 
+  }
+  .kv-card .k { font-size: 10px; }
+  .kv-card .v { font-size: 14px; }
   
   .detail-actions {
     grid-template-columns: 1fr;
-    gap: 10px;
-    margin-top: 10px;
-    padding-top: 10px;
+    gap: 8px;
+    margin-top: 8px;
+    padding-top: 8px;
   }
   .detail-actions .primary-btn,
   .detail-actions .secondary-btn {
-    height: 44px;
-    border-radius: 12px;
-    font-size: 13px;
+    height: 40px;
+    border-radius: 10px;
+    font-size: 12px;
   }
   
   .prompt-textarea {
-    height: 280px;
-    max-height: 45vh;
-    border-radius: 16px;
-    padding: 14px;
-    font-size: 13px;
+    height: 220px;
+    max-height: 40vh;
+    border-radius: 14px;
+    padding: 12px;
+    font-size: 12px;
     order: 3;
   }
   
-  .carousel-btn { width: 42px; height: 42px; border-radius: 14px; }
-  .carousel-counter { bottom: 12px; font-size: 12px; padding: 4px 10px; }
+  .carousel-btn { width: 36px; height: 36px; border-radius: 12px; }
+  .carousel-counter { bottom: 10px; font-size: 11px; padding: 3px 8px; }
   
   /* Prompt Builder Mobile */
   .pb-actions {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
   }
   
   .pb-output__tools {
     display: flex;
-    gap: 6px;
-    margin-top: 8px;
+    gap: 4px;
+    margin-top: 6px;
     justify-content: flex-start;
   }
 
@@ -1496,20 +1535,20 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 8px 12px;
-    min-width: 44px;
-    height: 36px;
-    border-radius: 8px;
-    font-size: 13px;
-    gap: 6px;
+    padding: 6px 10px;
+    min-width: 40px;
+    height: 32px;
+    border-radius: 6px;
+    font-size: 12px;
+    gap: 4px;
     flex-shrink: 0;
   }
 
   /* Mobile Constructor Tool Buttons */
   @media (max-width: 480px) {
     .pb-tool {
-      padding: 8px;
-      min-width: 36px;
+      padding: 6px;
+      min-width: 32px;
     }
 
     .pb-tool-text {
@@ -1518,8 +1557,8 @@ body {
 
     .pb-tool-icon {
       display: block !important;
-      width: 16px;
-      height: 16px;
+      width: 14px;
+      height: 14px;
     }
   }
 
@@ -1527,88 +1566,104 @@ body {
   .pb-output__head {
     flex-direction: column;
     align-items: stretch;
-    gap: 12px;
-    padding: 14px 16px;
+    gap: 10px;
+    padding: 12px 14px;
   }
 
   .pb-output__title-wrap {
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;
+    gap: 6px;
   }
 
   .pb-output__stats {
     align-self: flex-start;
-    font-size: 12px;
+    font-size: 11px;
+    padding: 3px 8px;
   }
 }
 
 @media (max-width: 480px) {
   .header { padding: 10px 12px; }
-  .header-content { gap: 8px 12px; }
-  .logo-icon { width: 32px; height: 32px; }
-  .logo span { font-size: 16px; }
-  .mobile-search-row { gap: 8px; }
-  .search-input { height: 44px; padding: 10px 14px 10px 40px; font-size: 14px; }
-  .mobile-generate-btn { height: 44px; padding: 0 14px; font-size: 14px; min-width: 90px; }
-  .icon-btn { width: 36px; height: 36px; }
-  
-  .prompt-card { margin: 0 8px; }
-  
-  .hero-banner { margin: 12px 12px 0; padding: 20px 16px; }
-  .hero-title { font-size: 20px; }
-  .hero-subtitle { font-size: 14px; margin-bottom: 16px; }
-  
-  .container { padding: 16px 12px; }
-  .filter-tabs { margin-bottom: 16px; gap: 8px; }
-  .filter-tab { padding: 8px 12px; font-size: 13px; }
-  
-  .stats-bar { padding: 12px; gap: 10px; }
-  .sort-select { height: 40px; }
-  
-  /* Еще больше уменьшаем счетчики на очень маленьких экранах */
-  .prompt-stats {
-    gap: 6px;
-    font-size: 10px;
+  .header-content { gap: 6px 10px; }
+  .logo-icon { width: 28px; height: 28px; font-size: 12px; }
+  .logo span { font-size: 15px; }
+  .mobile-search-row { gap: 6px; }
+  .search-input { 
+    height: 40px; 
+    padding: 9px 12px 9px 36px; 
+    font-size: 13px; 
+    border-radius: 10px;
+  }
+  .search-icon { left: 12px; }
+  .mobile-generate-btn { 
+    height: 40px; 
+    padding: 0 10px; 
+    font-size: 13px; 
+    min-width: 80px;
+    border-radius: 10px;
+  }
+  .icon-btn { 
+    width: 32px; 
+    height: 32px; 
+    border-radius: 8px;
+  }
+  .icon-btn svg {
+    width: 16px;
+    height: 16px;
   }
   
-  .prompt-stats .stat-item svg {
-    width: 10px;
-    height: 10px;
-  }
-  
-  .prompt-content { padding: 10px 12px 10px; }
-  
-  .referral-section { padding: 20px 16px; }
-  .referral-title { font-size: 20px; }
-  .referral-subtitle { font-size: 13px; }
-  
-  .modal-header { padding: 12px 14px; }
-  .modal-title { font-size: 15px; }
-  .modal-subtitle { font-size: 12px; }
-  .prompt-textarea { height: 240px; font-size: 12.5px; padding: 12px; }
-  
-  .toast {
-    left: 10px; right: 10px; bottom: 10px;
-    padding: 12px 16px;
-    font-size: 13px;
-    max-width: none;
-  }
-}
-
-@media (max-width: 360px) {
-  .logo span { display: none; }
-  .mobile-generate-btn .btn-text { display: none; }
-  .mobile-generate-btn {
-    min-width: 48px;
-    padding: 0;
-    width: 48px;
-    justify-content: center;
+  .hero-banner { 
+    margin: 8px 8px 0; 
+    padding: 16px 14px; 
+    border-radius: 14px; 
   }
   .hero-title { font-size: 18px; }
-  .referral-title { font-size: 18px; }
+  .hero-subtitle { font-size: 13px; margin-bottom: 12px; }
   
-  /* Дополнительное уменьшение для очень маленьких экранов */
+  .container { padding: 14px 10px; }
+  .filter-tabs { 
+    margin-bottom: 10px; 
+    gap: 4px; 
+  }
+  .filter-tab { 
+    padding: 6px 10px; 
+    font-size: 11px;
+    border-radius: 10px;
+  }
+  
+  .stats-bar { 
+    padding: 10px 12px; 
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  
+  .stats-info { 
+    font-size: 12px;
+  }
+  
+  .sort-select { 
+    height: 34px; 
+    border-radius: 8px;
+    font-size: 12px;
+    min-width: 120px;
+    padding: 5px 10px;
+  }
+  
+  /* Еще меньше расстояния между карточками */
+  .cards-grid {
+    gap: 6px;
+  }
+  
+  /* Обновление стилей для очень маленьких экранов */
+  .prompt-content { 
+    padding: 0; 
+  }
+  
+  .prompt-meta { 
+    padding: 6px 10px; 
+  }
+  
   .prompt-stats {
     gap: 4px;
     font-size: 9px;
@@ -1619,27 +1674,123 @@ body {
     height: 8px;
   }
   
-  .prompt-content { padding: 8px 10px; }
+  .prompt-actions { gap: 2px; }
+  .action-btn { 
+    width: 26px; 
+    height: 26px; 
+    border-radius: 5px;
+  }
+  .action-btn svg {
+    width: 12px;
+    height: 12px;
+  }
   
-  .pb-output__tools {
+  .referral-section { 
+    padding: 16px 14px; 
+    border-radius: 14px;
+    margin-top: 20px;
+  }
+  .referral-title { font-size: 18px; }
+  .referral-subtitle { font-size: 12px; }
+  
+  .modal-header { padding: 10px 12px; }
+  .modal-title { font-size: 14px; }
+  .modal-subtitle { font-size: 11px; }
+  .prompt-textarea { 
+    height: 180px; 
+    font-size: 11.5px; 
+    padding: 10px; 
+    border-radius: 12px;
+  }
+  
+  .toast {
+    left: 8px; right: 8px; bottom: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    max-width: none;
+  }
+}
+
+@media (max-width: 360px) {
+  .logo span { display: none; }
+  .mobile-generate-btn .btn-text { display: none; }
+  .mobile-generate-btn {
+    min-width: 40px;
+    padding: 0;
+    width: 40px;
+    justify-content: center;
+  }
+  .hero-title { font-size: 16px; }
+  .referral-title { font-size: 16px; }
+  
+  /* Минимальные расстояния между карточками */
+  .cards-grid {
     gap: 4px;
   }
   
+  /* Дополнительное уменьшение для очень маленьких экранов */
+  .prompt-content { padding: 0; }
+  
+  .prompt-meta { 
+    padding: 4px 6px; 
+  }
+  
+  .prompt-stats {
+    gap: 3px;
+    font-size: 8px;
+  }
+  
+  .prompt-stats .stat-item svg {
+    width: 7px;
+    height: 7px;
+  }
+  
+  .prompt-actions { gap: 2px; }
+  .action-btn { 
+    width: 24px; 
+    height: 24px; 
+    border-radius: 4px;
+  }
+  .action-btn svg {
+    width: 10px;
+    height: 10px;
+  }
+  
+  .pb-output__tools {
+    gap: 3px;
+  }
+  
   .pb-tool {
-    min-width: 32px;
-    height: 32px;
-    padding: 6px;
-    border-radius: 6px;
+    min-width: 28px;
+    height: 28px;
+    padding: 4px;
+    border-radius: 5px;
   }
   
   .pb-tool-icon {
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
   }
   
   .pb-output__head {
-    padding: 12px 14px;
+    padding: 10px 12px;
   }
+ .stats-bar { 
+    gap: 6px;
+    padding: 8px 10px;
+  }
+  
+  .stats-info { 
+    font-size: 11px;
+  }
+  
+  .sort-select { 
+    height: 32px; 
+    font-size: 11px;
+    min-width: 110px;
+    padding: 4px 8px;
+  }
+
 }
 
 /* === UTILITY CLASSES === */
@@ -1649,17 +1800,17 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 60px 20px;
+  padding: 40px 16px;
   color: var(--text-secondary);
   text-align: center;
 }
 .loader {
-  width: 48px; height: 48px;
-  border: 3px solid var(--border);
+  width: 40px; height: 40px;
+  border: 2px solid var(--border);
   border-top-color: var(--accent);
   border-radius: 50%;
   animation: spin 1s linear infinite;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 @keyframes spin { to{transform:rotate(360deg)} }
 
@@ -1693,11 +1844,11 @@ body.modal-open { overflow: hidden; position: fixed; width: 100%; height: 100%; 
   /* Переносим KV в компактные чипы и кладём поверх изображения */
   #promptModalStats {
     position: absolute;
-    top: 10px;
-    left: 10px;
+    top: 8px;
+    left: 8px;
     z-index: 2;
     display: flex;
-    gap: 8px;
+    gap: 6px;
     width: auto;
     margin: 0;
     pointer-events: none;
@@ -1705,12 +1856,12 @@ body.modal-open { overflow: hidden; position: fixed; width: 100%; height: 100%; 
 
   #promptModalStats .kv-card {
     height: auto;
-    padding: 7px 10px;
-    border-radius: 999px;
+    padding: 5px 8px;
+    border-radius: 16px;
     background: rgba(17,24,39,.55);
     border: 1px solid rgba(255,255,255,.18);
     backdrop-filter: blur(10px);
-    box-shadow: 0 10px 24px rgba(0,0,0,.18);
+    box-shadow: 0 8px 20px rgba(0,0,0,.18);
     pointer-events: none;
   }
 
@@ -1720,8 +1871,8 @@ body.modal-open { overflow: hidden; position: fixed; width: 100%; height: 100%; 
   }
 
   #promptModalStats .kv-card .v {
-    font-size: 13px;
-    font-weight: 900;
+    font-size: 12px;
+    font-weight: 700;
     color: #fff;
     line-height: 1;
     letter-spacing: -0.2px;
@@ -1731,14 +1882,14 @@ body.modal-open { overflow: hidden; position: fixed; width: 100%; height: 100%; 
   #promptModalStats .kv-card .v {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 3px;
   }
 
   #promptModalStats .kv-card:nth-child(1) .v::before {
     content: '';
     display: block;
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Crect x='9' y='9' width='13' height='13' rx='2' ry='2'%3E%3C/rect%3E%3Cpath d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'%3E%3C/path%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-size: contain;
@@ -1748,8 +1899,8 @@ body.modal-open { overflow: hidden; position: fixed; width: 100%; height: 100%; 
   #promptModalStats .kv-card:nth-child(2) .v::before {
     content: '';
     display: block;
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Cpath d='M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z'%3E%3C/path%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-size: contain;
@@ -1777,7 +1928,7 @@ body.modal-open { overflow: hidden; position: fixed; width: 100%; height: 100%; 
 /* Поднимаем кнопки на мобильных */
 @media (max-width: 768px) {
   .detail-side-under {
-    margin-top: -20px;
+    margin-top: -16px;
     position: relative;
     z-index: 2;
   }
@@ -1790,7 +1941,7 @@ body.modal-open { overflow: hidden; position: fixed; width: 100%; height: 100%; 
 
 @media (max-width: 768px) {
   .modal-body {
-    padding: 12px;
+    padding: 10px;
     max-height: 85vh;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -1799,10 +1950,10 @@ body.modal-open { overflow: hidden; position: fixed; width: 100%; height: 100%; 
   /* Уменьшаем изображение */
   .carousel {
     aspect-ratio: 3/4;
-    max-height: 50vh; /* Ограничиваем высоту */
+    max-height: 45vh; /* Ограничиваем высоту */
     height: auto;
-    border-radius: 16px;
-    margin-bottom: 12px;
+    border-radius: 14px;
+    margin-bottom: 10px;
   }
 
   .carousel img {
@@ -1813,47 +1964,47 @@ body.modal-open { overflow: hidden; position: fixed; width: 100%; height: 100%; 
 
   /* Уменьшаем навигацию */
   .carousel-nav {
-    padding: 0 8px;
+    padding: 0 6px;
   }
 
   .carousel-btn {
-    width: 36px;
-    height: 36px;
-    border-radius: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
     backdrop-filter: blur(8px);
   }
 
   .carousel-counter {
-    bottom: 12px;
-    font-size: 12px;
-    padding: 4px 10px;
+    bottom: 10px;
+    font-size: 11px;
+    padding: 3px 8px;
     backdrop-filter: blur(8px);
   }
 
   /* Уменьшаем статистику */
   #promptModalStats {
-    top: 8px;
-    left: 8px;
-    gap: 6px;
+    top: 6px;
+    left: 6px;
+    gap: 4px;
   }
 
   #promptModalStats .kv-card {
-    padding: 6px 8px;
-    border-radius: 16px;
+    padding: 4px 6px;
+    border-radius: 14px;
     backdrop-filter: blur(12px);
-    min-width: 60px;
+    min-width: 50px;
   }
 
   #promptModalStats .kv-card .v {
-    font-size: 12px;
-    font-weight: 700;
-    gap: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    gap: 2px;
   }
 
   #promptModalStats .kv-card:nth-child(1) .v::before,
   #promptModalStats .kv-card:nth-child(2) .v::before {
-    width: 12px;
-    height: 12px;
+    width: 10px;
+    height: 10px;
   }
 
   /* Фиксируем кнопки в зоне видимости */
@@ -1862,18 +2013,18 @@ body.modal-open { overflow: hidden; position: fixed; width: 100%; height: 100%; 
     bottom: 0;
     background: var(--bg-card);
     border: 1px solid rgba(17,24,39,.12);
-    border-radius: 16px;
-    padding: 16px;
-    margin-top: -10px; /* Поднимаем ближе к изображению */
+    border-radius: 14px;
+    padding: 14px;
+    margin-top: -8px; /* Поднимаем ближе к изображению */
     z-index: 10;
-    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.05);
     backdrop-filter: blur(10px);
   }
 
   .detail-actions {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 8px;
     margin-top: 0;
     padding-top: 0;
     border-top: none;
@@ -1881,9 +2032,9 @@ body.modal-open { overflow: hidden; position: fixed; width: 100%; height: 100%; 
 
   .detail-actions .primary-btn,
   .detail-actions .secondary-btn {
-    height: 44px;
-    border-radius: 12px;
-    font-size: 15px;
+    height: 40px;
+    border-radius: 10px;
+    font-size: 13px;
     font-weight: 600;
     width: 100%;
     justify-content: center;
@@ -1893,7 +2044,7 @@ body.modal-open { overflow: hidden; position: fixed; width: 100%; height: 100%; 
     background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
     color: white;
     border: none;
-    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.3);
+    box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3);
   }
 
   .detail-actions .secondary-btn {
@@ -1904,13 +2055,13 @@ body.modal-open { overflow: hidden; position: fixed; width: 100%; height: 100%; 
 
   /* Уменьшаем текстовое поле */
   .prompt-textarea {
-    height: 200px;
-    max-height: 40vh;
-    border-radius: 14px;
-    padding: 14px;
-    font-size: 14px;
-    line-height: 1.5;
-    margin-top: 12px;
+    height: 180px;
+    max-height: 35vh;
+    border-radius: 12px;
+    padding: 12px;
+    font-size: 12px;
+    line-height: 1.4;
+    margin-top: 10px;
     order: 3;
     border: 1.5px solid var(--border);
     background: var(--bg-secondary);
@@ -1930,20 +2081,20 @@ body.modal-open { overflow: hidden; position: fixed; width: 100%; height: 100%; 
 
   .modal-header {
     flex-shrink: 0;
-    padding: 16px;
+    padding: 14px;
   }
 
   .modal-body {
     flex: 1;
     overflow-y: auto;
-    padding-bottom: 20px;
+    padding-bottom: 16px;
   }
 
   /* Улучшаем видимость при прокрутке */
   .detail-side-under {
     position: relative;
     bottom: auto;
-    margin-top: 12px;
+    margin-top: 10px;
   }
 
   /* Добавляем градиент для индикации прокрутки */
@@ -1953,7 +2104,7 @@ body.modal-open { overflow: hidden; position: fixed; width: 100%; height: 100%; 
     bottom: 0;
     left: 0;
     right: 0;
-    height: 60px;
+    height: 50px;
     background: linear-gradient(to top, var(--bg-card), transparent);
     pointer-events: none;
     z-index: 5;
@@ -1966,43 +2117,43 @@ body.modal-open { overflow: hidden; position: fixed; width: 100%; height: 100%; 
 
 @media (max-width: 480px) {
   .carousel {
-    max-height: 45vh;
-    margin-bottom: 10px;
+    max-height: 40vh;
+    margin-bottom: 8px;
   }
 
   .detail-side-under {
-    padding: 14px;
-    margin-top: 8px;
+    padding: 12px;
+    margin-top: 6px;
   }
 
   .detail-actions .primary-btn,
   .detail-actions .secondary-btn {
-    height: 42px;
-    font-size: 14px;
+    height: 38px;
+    font-size: 12px;
   }
 
   .prompt-textarea {
-    height: 180px;
-    font-size: 13.5px;
-    padding: 12px;
+    height: 160px;
+    font-size: 11.5px;
+    padding: 10px;
   }
 
   .modal-header {
-    padding: 14px 16px;
+    padding: 12px 14px;
   }
 
   .modal-title {
-    font-size: 16px;
+    font-size: 14px;
   }
 
   .modal-subtitle {
-    font-size: 13px;
+    font-size: 11px;
   }
 
   /* Еще меньше изображение на очень маленьких экранах */
   .carousel {
     aspect-ratio: 4/3;
-    max-height: 40vh;
+    max-height: 35vh;
   }
 }
 
@@ -2013,12 +2164,12 @@ body.modal-open { overflow: hidden; position: fixed; width: 100%; height: 100%; 
 @media (max-width: 768px) and (orientation: landscape) {
   .carousel {
     aspect-ratio: 16/9;
-    max-height: 40vh;
+    max-height: 35vh;
   }
   
   .prompt-textarea {
-    height: 150px;
-    max-height: 35vh;
+    height: 140px;
+    max-height: 30vh;
   }
   
   .modal-body {
@@ -2037,11 +2188,11 @@ body.modal-open { overflow: hidden; position: fixed; width: 100%; height: 100%; 
     }
     
     .modal-body {
-      max-height: calc(100vh - 150px);
+      max-height: calc(100vh - 120px);
     }
     
     .carousel {
-      max-height: 45vh;
+      max-height: 40vh;
     }
   }
 }
