@@ -1,3 +1,4 @@
+console.log("APP VERSION: 2025-12-29T15:11:32Z");
 'use strict';
 
 // Конфигурация
@@ -1225,3 +1226,19 @@ document.addEventListener('DOMContentLoaded', () => {
   // Перенос баннера при загрузке
   moveBannerForMobile();
 });
+
+
+// --- debug exports ---
+try {
+  window.__app = {
+    initApp,
+    fetchPromptsFromEdge: (typeof fetchPromptsFromEdge === 'function') ? fetchPromptsFromEdge : null,
+    loadPrompts: (typeof loadPrompts === 'function') ? loadPrompts : null,
+    callEdge: (typeof callEdge === 'function') ? callEdge : null,
+    getTelegramInitData: (typeof getTelegramInitData === 'function') ? getTelegramInitData : null,
+  };
+  console.log("window.__app ready", window.__app);
+} catch (e) {
+  console.warn("debug export failed", e);
+}
+
