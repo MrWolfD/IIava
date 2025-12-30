@@ -513,9 +513,14 @@ function applyFiltersAndSort(prompts) {
     filtered = filtered.filter(p => !!p.is_favorite);
   }
 
-  // категории
-  if (state.activeCategories && state.activeCategories.size) {
-    filtered = filtered.filter(p => state.activeCategories.has(p.category));
+  // категории (учитываем 'все' как отсутствие фильтра)
+  const categories = new Set(state.activeCategories || []);
+  const onlyAll = categories.size === 0 || (categories.size === 1 && categories.has('все'));
+  if (!onlyAll) {
+    categories.delete('все');
+    if (categories.size > 0) {
+      filtered = filtered.filter(p => categories.has(p.category));
+    }
   }
 
   // поиск
@@ -542,13 +547,14 @@ function applyFiltersAndSort(prompts) {
   return filtered;
 }
 
+
 function updatePromptUI(promptId) {
   const id = String(promptId);
   const prompt = state.prompts.find(p => String(p.id) === id);
   if (!prompt) return;
 
   // карточка в списке
-  const card = dom.promptGrid?.querySelector?.(`.prompt-card[data-id="${id}"]`);
+  const card = dom.cardsGrid?.querySelector?.(`.prompt-card[data-id="${id}"]`);
   if (card) {
     const copiesEl = card.querySelector('[data-stat="copies"]');
     if (copiesEl) copiesEl.textContent = String(prompt.copies || 0);
@@ -557,23 +563,38 @@ function updatePromptUI(promptId) {
     if (favEl) favEl.textContent = String(prompt.favorites || 0);
 
     const favBtn = card.querySelector('.favorite-btn');
-    if (favBtn) favBtn.classList.toggle('active', !!prompt.is_favorite);
+    if (favBtn) {
+      favBtn.classList.toggle('active', !!prompt.is_favorite);
+      favBtn.title = prompt.is_favorite ? 'Удалить из избранного' : 'Добавить в избранное';
+
+      const svg = favBtn.querySelector('svg');
+      if (svg) svg.setAttribute('fill', prompt.is_favorite ? 'currentColor' : 'none');
+    }
   }
 
-  // модалка (если открыта именно эта карточка)
-  const openId = dom.modal?.dataset?.id;
-  if (openId && String(openId) === id) {
-    if (dom.modalCopiesCount) dom.modalCopiesCount.textContent = String(prompt.copies || 0);
-    if (dom.modalFavCount) dom.modalFavCount.textContent = String(prompt.favorites || 0);
-    if (dom.modalFavBtn) dom.modalFavBtn.classList.toggle('active', !!prompt.is_favorite);
+  // модалка (если открыта)
+  if (dom.promptModalOverlay?.classList.contains('show')) {
+    const list = state.filteredPrompts.length ? state.filteredPrompts : state.prompts;
+    const openPrompt = list[modal.currentIndex];
+    if (openPrompt && String(openPrompt.id) === id) {
+      const mc = document.getElementById('promptModalCopies');
+      if (mc) mc.textContent = String(prompt.copies || 0);
+
+      const mf = document.getElementById('promptModalFavorites');
+      if (mf) mf.textContent = String(prompt.favorites || 0);
+
+      const mb = document.getElementById('promptModalFavBtn');
+      if (mb) mb.textContent = prompt.is_favorite ? '❤ В избранном' : '❤ В избранное';
+    }
   }
 }
+
 
 function moveCardToSortedPosition(promptId) {
   const id = String(promptId);
   state.filteredPrompts = applyFiltersAndSort(state.prompts);
 
-  const container = dom.promptGrid;
+  const container = dom.cardsGrid;
   if (!container) return;
 
   const card = container.querySelector(`.prompt-card[data-id="${id}"]`);
