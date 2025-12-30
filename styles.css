@@ -2572,3 +2572,152 @@ body.modal-open { overflow: hidden; position: fixed; width: 100%; height: 100%; 
     }
   }
 }
+
+
+/* === CONSTRUCTOR MODAL (match Profile style) === */
+#constructorModalOverlay .modal-header{
+  background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+  color: #fff;
+  padding: 24px 28px;
+  border-bottom: none;
+  position: relative;
+  overflow: hidden;
+}
+#constructorModalOverlay .modal-header::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background: radial-gradient(circle at 80% 20%, rgba(255,255,255,0.15) 0%, transparent 50%);
+  pointer-events:none;
+}
+#constructorModalOverlay .modal-title{
+  font-size: 24px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+}
+#constructorModalOverlay .modal-subtitle{
+  font-size: 14px;
+  opacity: .9;
+  color: rgba(255,255,255,.9);
+  margin-top: 0;
+}
+#constructorModalOverlay .modal-close{
+  background: rgba(255,255,255,0.15);
+  border: 1.5px solid rgba(255,255,255,0.3);
+  color: #fff;
+  backdrop-filter: blur(10px);
+  z-index: 2;
+}
+#constructorModalOverlay .modal-close:hover{
+  background: rgba(255,255,255,0.25);
+  border-color: rgba(255,255,255,0.5);
+}
+
+#constructorModalOverlay .modal-body{
+  padding: 28px;
+  background: var(--bg-secondary);
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Make the builder feel like a single cohesive block */
+#constructorModalOverlay .pb-progress-container{
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+  position: sticky;
+  top: 0;
+  z-index: 12;
+  backdrop-filter: blur(6px);
+}
+
+#constructorModalOverlay .pb-sections{
+  gap: 12px;
+}
+
+#constructorModalOverlay .pb-section{
+  border-radius: 16px;
+  box-shadow: var(--shadow-sm);
+}
+#constructorModalOverlay .pb-section:hover{
+  box-shadow: var(--shadow);
+  transform: translateY(-1px);
+}
+#constructorModalOverlay .pb-section__head{
+  padding: 18px 20px;
+}
+#constructorModalOverlay .pb-section__icon{
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+}
+
+#constructorModalOverlay .pb-section__body{
+  padding: 6px 20px 20px;
+}
+
+#constructorModalOverlay .pb-pill{
+  border-radius: 12px;
+  background: var(--bg-card);
+}
+#constructorModalOverlay .pb-pill:hover{
+  background: var(--bg-hover);
+}
+#constructorModalOverlay .pb-pill.is-active{
+  background: rgba(139,92,246,.12);
+  border-color: rgba(139,92,246,.55);
+  box-shadow: 0 6px 18px rgba(139,92,246,.10);
+}
+
+#constructorModalOverlay .pb-output{
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  margin-top: 16px;
+}
+#constructorModalOverlay .pb-output__head{
+  padding: 18px 20px;
+  background: linear-gradient(180deg, rgba(139,92,246,.06), transparent);
+}
+#constructorModalOverlay .pb-textarea-wrapper{
+  padding: 20px;
+}
+#constructorModalOverlay .pb-textarea{
+  border-radius: 14px;
+  background: var(--bg-primary);
+}
+
+#constructorModalOverlay .pb-actions{
+  padding: 20px;
+}
+
+/* Subtle entrance animation (same vibe as profile) */
+@keyframes pbSlideUpFade{
+  from{ opacity:0; transform: translateY(14px); }
+  to{ opacity:1; transform: translateY(0); }
+}
+#constructorModalOverlay .pb-progress-container,
+#constructorModalOverlay .pb-section,
+#constructorModalOverlay .pb-output{
+  animation: pbSlideUpFade .35s ease-out backwards;
+}
+#constructorModalOverlay .pb-progress-container{ animation-delay: .06s; }
+#constructorModalOverlay .pb-section:nth-child(1){ animation-delay: .10s; }
+#constructorModalOverlay .pb-section:nth-child(2){ animation-delay: .14s; }
+#constructorModalOverlay .pb-section:nth-child(3){ animation-delay: .18s; }
+#constructorModalOverlay .pb-section:nth-child(4){ animation-delay: .22s; }
+#constructorModalOverlay .pb-section:nth-child(5){ animation-delay: .26s; }
+#constructorModalOverlay .pb-output{ animation-delay: .30s; }
+
+/* Mobile tweaks to keep the same vibe as Profile modal */
+@media (max-width: 768px){
+  #constructorModalOverlay .modal-header{ padding: 20px 24px; }
+  #constructorModalOverlay .modal-title{ font-size: 20px; }
+  #constructorModalOverlay .modal-body{ padding: 20px; gap: 12px; }
+  #constructorModalOverlay .pb-section__head{ padding: 14px 14px; }
+  #constructorModalOverlay .pb-section__body{ padding: 4px 14px 14px; }
+  #constructorModalOverlay .pb-textarea-wrapper{ padding: 14px; }
+  #constructorModalOverlay .pb-actions{ padding: 14px; }
+}
