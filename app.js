@@ -1,4 +1,4 @@
-console.log("APP VERSION: 2026-01-13T00:00:00Z");
+console.log("APP VERSION: 2026-01-13 (fastify api)");
 'use strict';
 
 // Конфигурация
@@ -10,31 +10,13 @@ const CONFIG = {
   TUTORIAL_KEY: 'neurophoto_tutorial_seen_session'
 };
 
-// --- API (Fastify) ---
-// Можно переопределить базовый URL API:
-// 1) window.NEUROPHOTO_API_BASE (в index.html до подключения app.js)
-// 2) localStorage['neurophoto_api_base']
-// По умолчанию — тот же origin (если фронт и API на одном домене)
-const DEFAULT_API_BASE = "https://api.iiava.koshelev.agency";
+// Fastify API base
+const API_BASE = "https://api.iiava.koshelev.agency";
 
-function getApiBase() {
-  try {
-    const w = typeof window !== 'undefined' ? window : null;
-    const fromWindow = w && typeof w.NEUROPHOTO_API_BASE === "string" ? w.NEUROPHOTO_API_BASE : "";
-    const fromLS = w?.localStorage?.getItem("neurophoto_api_base") || "";
-    const base = (fromWindow || fromLS || DEFAULT_API_BASE || "").trim().replace(/\/+$/, "");
-    return base || "";
-  } catch {
-    return (DEFAULT_API_BASE || "").replace(/\/+$/, "");
-  }
-}
-
-const API_BASE = getApiBase();
 const TG_PROFILE_URL = `${API_BASE}/tg/profile`;
 const PROMPT_LIST_URL = `${API_BASE}/prompt/list`;
 const PROMPT_FAVORITE_URL = `${API_BASE}/prompt/favorite`;
 const PROMPT_COPY_URL = `${API_BASE}/prompt/copy`;
-
 // --- Telegram WebApp + Supabase Edge profile ---
 
 let runtimeProfile = null;
@@ -87,7 +69,7 @@ function normalizeProfilePayload(payload) {
   return null;
 }
 
-async function fetchProfileFromEdge() {
+async function fetchProfileFromAPI() {
   const initData = getTelegramInitData();
 
   if (!initData) {
@@ -95,13 +77,31 @@ async function fetchProfileFromEdge() {
     return null;
   }
 
-  try {
-    const payload = await callEdge(TG_PROFILE_URL, {});
-    return normalizeProfilePayload(payload);
-  } catch (e) {
-    console.warn("tg/profile failed:", e);
-    return null;
+  const res = await fetch(TG_PROFILE_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-telegram-init-data": initData,
+    },
+    body: JSON.stringify({ initData })
+  });
+
+  const text = await res.text();
+
+  if (!res.ok) {
+    throw new Error(`tg_profile HTTP ${res.status}: ${text}`);
   }
+
+  let json;
+  try {
+    json = JSON.parse(text);
+  } catch (e) {
+    throw new Error("tg_profile returned non-JSON");
+  }
+
+  const profile = normalizeProfilePayload(json);
+
+  return profile;
 }
 
 function getProfileOrNull() {
@@ -136,7 +136,7 @@ function getProfileForUI() {
   };
 }
 
-// --- Prompts from Supabase Edge ---
+// --- Prompts from Fastify API ---
 function normalizePromptListPayload(payload) {
   if (payload == null) return [];
   const items = payload.items ?? payload.data ?? payload;
@@ -168,18 +168,14 @@ async function callEdge(url, payload) {
   const initData = getTelegramInitData();
   if (!initData) return { ok: false, message: "No initData" };
 
-  if (!url || typeof url !== "string") {
-    throw new Error("API url is not set (check NEUROPHOTO_API_BASE)");
-  }
-
   const res = await fetch(url, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       "x-telegram-init-data": initData,
     },
-    // для совместимости: сервер принимает initData и в body
-    body: JSON.stringify({ initData, ...(payload || {}) }),
+    // initData дублируем в body для совместимости/логирования на бэке
+    body: JSON.stringify({ initData, ...payload }),
   });
 
   const text = await res.text();
@@ -188,7 +184,7 @@ async function callEdge(url, payload) {
   try { return JSON.parse(text); } catch { throw new Error("API returned non-JSON"); }
 }
 
-async function fetchPromptsFromEdge() {
+async function fetchPromptsFromAPI() {
   const json = await callEdge(PROMPT_LIST_URL, { page: 1, limit: 200 });
   const items = normalizePromptListPayload(json);
   return items.map(mapPromptFromDb);
@@ -201,7 +197,7 @@ async function loadPrompts() {
     // показываем лоадер, если есть
     if (dom.loadingState) dom.loadingState.style.display = 'flex';
 
-    const prompts = await fetchPromptsFromEdge();
+    const prompts = await fetchPromptsFromAPI();
 
     // ✅ Никаких дефолтных промптов: если пусто — показываем пустое состояние
     state.prompts = Array.isArray(prompts) ? prompts : [];
@@ -267,7 +263,7 @@ async function toggleFavoriteEdge(promptId) {
 }
 
 
-// --- /Prompts from Supabase Edge ---
+// --- /Prompts from Fastify API ---
 
 // --- /Telegram WebApp + profile ---
 
@@ -844,12 +840,13 @@ async function copyCurrentPrompt() {
   }
 
   try {
-    await callEdge(PROMPT_COPY_URL, { prompt_id: prompt.id });
-    prompt.copies = 1;
+    const res = await callEdge(PROMPT_COPY_URL, { prompt_id: prompt.id });
+    const copiesByUser = Number(res?.copies_by_user ?? res?.copies ?? res?.count ?? 1) || 1;
+    prompt.copies = copiesByUser;
 
     // синхроним модалку
     const el = document.getElementById('promptModalCopies');
-    if (el) el.textContent = '1';
+    if (el) el.textContent = String(prompt.copies || 0);
 
     // синхроним карточку/статы без перерендера всего списка
     onPromptMetricsChanged(prompt.id);
@@ -873,30 +870,19 @@ async function copyPromptDirectly(promptId) {
   utils.showToast('Промпт скопирован. Вставьте его в чат с ботом');
 
   // 🔒 Если пользователь уже копировал этот промпт раньше — не увеличиваем счётчик повторно
-if (Number(prompt.copies || 0) > 0) {
-  onPromptMetricsChanged(promptId);
-  return;
-}
-
-try {
-  const res = await callEdge(PROMPT_COPY_URL, { prompt_id: prompt.id });
-
-  // бэк сообщает, засчиталась ли копия впервые (counted)
-  // но для UI важно, что у пользователя теперь точно есть копия => 1
-  if (res && typeof res === "object") {
-    if (typeof res.copies_by_user === "number") {
-      prompt.copies = res.copies_by_user;
-    } else {
-      prompt.copies = 1;
-    }
-  } else {
-    prompt.copies = 1;
+  if (Number(prompt.copies || 0) > 0) {
+    return;
   }
-} catch (e) {
-  console.warn("prompt/copy failed:", e);
-}
 
-onPromptMetricsChanged(promptId);
+  try {
+    const res = await callEdge(PROMPT_COPY_URL, { prompt_id: prompt.id });
+    const copiesByUser = Number(res?.copies_by_user ?? res?.copies ?? res?.count ?? 1) || 1;
+    prompt.copies = copiesByUser;
+  } catch (e) {
+    console.warn("prompt_copy failed:", e);
+  }
+
+  onPromptMetricsChanged(promptId);
 }
 
 function setupCarouselSwipe() {
@@ -1248,7 +1234,7 @@ function initApp() {
 
     // 2) Профиль — опционально (только в Telegram WebApp)
     try {
-      runtimeProfile = await fetchProfileFromEdge();
+      runtimeProfile = await fetchProfileFromAPI();
     } catch (e) {
       runtimeProfile = null;
     }
@@ -1495,7 +1481,7 @@ document.addEventListener('DOMContentLoaded', () => {
 try {
   window.__app = {
     initApp,
-    fetchPromptsFromEdge: (typeof fetchPromptsFromEdge === 'function') ? fetchPromptsFromEdge : null,
+    fetchPromptsFromAPI: (typeof fetchPromptsFromAPI === 'function') ? fetchPromptsFromAPI : null,
     loadPrompts: (typeof loadPrompts === 'function') ? loadPrompts : null,
     callEdge: (typeof callEdge === 'function') ? callEdge : null,
     getTelegramInitData: (typeof getTelegramInitData === 'function') ? getTelegramInitData : null,
