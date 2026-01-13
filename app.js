@@ -5,9 +5,9 @@ console.log("APP VERSION: 2026-01-13 (fastify api)");
 const CONFIG = {
   DEBOUNCE_DELAY: 300,
   INIT_DELAY: 700,
-  STORAGE_KEY: 'neurophoto_favorites',
+  STORAGE_KEY: 'iiava_favorites',
   MIN_SWIPE_DISTANCE: 55,
-  TUTORIAL_KEY: 'neurophoto_tutorial_seen_session'
+  TUTORIAL_KEY: 'iiava_tutorial_seen_session'
 };
 
 // Fastify API base
@@ -290,7 +290,7 @@ const demoData = {
     earnedBonuses: 340,
     referrals: 12,
     generations: { total: 98, success: 79, unfinished: 11, canceled: 8 },
-    referralLink: "https://t.me/neurophoto_bot?start=ref_224753455"
+    referralLink: "https://t.me/iiava?start=ref_224753455"
   },
 
   prompts: []
@@ -779,7 +779,7 @@ const modal = {
 
     const refCode = p.ref_code ?? '';
     document.getElementById('profileReferralLink').value =
-      refCode ? `https://t.me/neurokartochkaBot?start=ref_${refCode}` : (p.referralLink ?? '');
+      refCode ? `https://t.me/iiava?start=ref_${refCode}` : (p.referralLink ?? '');
 
     this.open(dom.profileModalOverlay);
   },
@@ -1248,7 +1248,7 @@ function initApp() {
     const refCode = (p.ref_code ?? '').toString().trim();
     // Реферальную ссылку показываем ТОЛЬКО при авторизации через Telegram WebApp
     if (isTelegramAuthorized() && refCode) {
-      dom.referralLink.value = `https://t.me/neurokartochkaBot?start=ref_${refCode}`;
+      dom.referralLink.value = `https://t.me/iiava?start=ref_${refCode}`;
     } else {
       dom.referralLink.value = '';
     }
